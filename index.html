@@ -347,14 +347,31 @@ function calculate() {
 
   } else {
     // Business
-    if (capacity > 20 && isDR) {
-      let bizDR = Math.min(capacity * 3.8, totalCost / 3, 30000);
-      results.push({name: '国：DR補助金（業務用）', amount: Math.round(bizDR * 10) / 10, note: '3.8万/kWh or 1/3（上限3億）', tag: 'ok', color: '#27ae60'});
+    let bizNatAmount = 0;
+    if (isDR && capacity > 20) {
+      bizNatAmount = Math.min(capacity * 3.8, totalCost / 3, 30000);
+      results.push({name: '国：DR補助金（業務用）', amount: Math.round(bizNatAmount * 10) / 10, note: '3.8万/kWh or 1/3（上限3億）。20kWh超・高圧以上', tag: 'ok', color: '#27ae60'});
+    } else if (isDR && capacity <= 20) {
+      warnings.push('業務用DR補助金は蓄電容量20kWh超が条件です。現在の容量: ' + capacity + 'kWh。20kWh超のシステムをご検討ください。');
+    }
+    if (hasSolar && isSII) {
+      let spAmount = Math.min(capacity * 4.0, totalCost / 3);
+      if (bizNatAmount === 0) {
+        results.push({name: '国：ストレージパリティ補助金', amount: Math.round(spAmount * 10) / 10, note: '4.0万/kWh、経費の1/3。太陽光10kW以上併設', tag: 'ok', color: '#2ecc71'});
+      } else {
+        advices.push('ストレージパリティ補助金（4.0万/kWh）も候補ですが、DR補助金との併用は不可です。金額が有利な方を選択してください。');
+      }
     }
     if (pref === 'tokyo') {
-      results.push({name: '東京都：地産地消型', amount: 0, note: '補助率は要確認（蓄電池単独設置OK）', tag: 'info', color: '#2e86c1'});
+      results.push({name: '東京都：地産地消型再エネ', amount: 0, note: '補助率は要確認（蓄電池単独設置OK）', tag: 'info', color: '#2e86c1'});
+      if (capacity >= 1000) {
+        results.push({name: '東京都：大規模蓄電池支援', amount: 0, note: '1MW以上。補助率は要確認。申請9月', tag: 'info', color: '#1a5276'});
+      }
     }
     advices.push('業務用の場合、中小企業経営強化税制（即時償却 or 10%税額控除）も活用できます。2027年3月末まで。');
+    if (!isDR && !hasSolar) {
+      advices.push('DR対応でも太陽光併設でもない場合、国の補助金は限定的です。東京都の地産地消型（蓄電池単独OK）をご確認ください。');
+    }
   }
 
   // Render
