@@ -105,6 +105,44 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
 .qr-wrap{text-align:center;margin:15px 0}
 .qr-wrap canvas{border:8px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.1);border-radius:8px}
 
+/* Chatbot */
+.chat-fab{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2e86c1,#3498db);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.2);z-index:998;display:flex;align-items:center;justify-content:center}
+.chat-fab:hover{transform:scale(1.1)}
+.chat-window{position:fixed;bottom:85px;right:20px;width:360px;max-height:500px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);z-index:998;display:none;flex-direction:column;overflow:hidden}
+.chat-header{background:linear-gradient(135deg,#2e86c1,#3498db);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.chat-header button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer}
+.chat-body{flex:1;overflow-y:auto;padding:12px;max-height:340px}
+.chat-msg{margin-bottom:10px;display:flex}
+.chat-msg.bot{justify-content:flex-start}
+.chat-msg.user{justify-content:flex-end}
+.chat-bubble{max-width:80%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+.chat-msg.bot .chat-bubble{background:#f0f4f8;color:#333;border-bottom-left-radius:4px}
+.chat-msg.user .chat-bubble{background:#2e86c1;color:#fff;border-bottom-right-radius:4px}
+.chat-input{display:flex;border-top:1px solid #eee;padding:8px}
+.chat-input input{flex:1;border:1px solid #ddd;border-radius:20px;padding:8px 14px;font-size:12px;font-family:inherit;outline:none}
+.chat-input input:focus{border-color:#2e86c1}
+.chat-input button{background:#2e86c1;color:#fff;border:none;border-radius:50%;width:34px;height:34px;margin-left:6px;cursor:pointer;font-size:14px}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.chat-suggestions button{background:#e8f4fd;border:1px solid #bee5eb;border-radius:15px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:inherit;color:#1a5276}
+.chat-suggestions button:hover{background:#d4e6f1}
+
+/* Lang switcher */
+.lang-switch{position:absolute;top:10px;right:15px;display:flex;gap:4px}
+.lang-switch button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer}
+.lang-switch button.active{background:rgba(255,255,255,.5);font-weight:700}
+
+/* Market compare */
+.market-section{margin-top:16px;padding-top:12px;border-top:2px solid #d4e6f1}
+.market-bar{display:flex;align-items:center;margin:6px 0;font-size:11px}
+.market-bar .mlabel{width:100px;color:#666}
+.market-bar .mbar-wrap{flex:1;background:#ecf0f1;border-radius:6px;height:20px;position:relative;overflow:hidden}
+.market-bar .mbar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:6px;font-size:10px;color:#fff;font-weight:700}
+.market-bar .mval{width:80px;text-align:right;font-weight:700;font-size:12px}
+.deal-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700;margin:8px 0}
+.deal-good{background:#d5f5e3;color:#1e8449}
+.deal-avg{background:#fef9e7;color:#7d6608}
+.deal-high{background:#fadbd8;color:#c0392b}
+
 /* Proposal print */
 .proposal-only{display:none}
 @media print{
@@ -125,9 +163,14 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
 </head>
 <body>
 
-<div class="header">
-  <h1>蓄電池 補助金シミュレーター</h1>
-  <p>2026年度（令和8年度）全国対応 ｜ 47都道府県の主要自治体</p>
+<div class="header" style="position:relative">
+  <div class="lang-switch">
+    <button class="active" onclick="setLang('ja')">JP</button>
+    <button onclick="setLang('en')">EN</button>
+    <button onclick="setLang('zh')">CN</button>
+  </div>
+  <h1 id="t-title">蓄電池 補助金シミュレーター</h1>
+  <p id="t-subtitle">2026年度（令和8年度）全国対応 ｜ 47都道府県の主要自治体</p>
 </div>
 
 <div class="container">
@@ -230,6 +273,12 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
     <div class="bar-chart" id="barChart"></div>
     <table class="result-table"><thead><tr><th>補助金制度</th><th>条件</th><th style="text-align:right">金額</th></tr></thead><tbody id="resultBody"></tbody></table>
     <div id="adviceArea"></div>
+    <!-- Market Compare -->
+    <div class="market-section" id="marketSection" style="display:none">
+      <h2><span class="step">&#128200;</span><span data-t="marketTitle">市場価格との比較</span></h2>
+      <div id="marketCompare"></div>
+    </div>
+
     <div class="roi-section" id="roiSection" style="display:none">
       <h2><span class="step">$</span>投資回収シミュレーション</h2>
       <div class="roi-grid">
@@ -274,6 +323,23 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
 
 <div class="footer no-print" style="text-align:center;padding:15px;font-size:10px;color:#999">
   ※概算です。実際の補助金額は申請内容・審査結果により異なります。情報は2026年4月10日時点。
+</div>
+
+<!-- Chatbot FAB -->
+<button class="chat-fab no-print" onclick="toggleChat()" title="質問する">&#128172;</button>
+<div class="chat-window no-print" id="chatWindow">
+  <div class="chat-header"><span data-t="chatTitle">補助金Q&A チャット</span><button onclick="toggleChat()">&times;</button></div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-msg bot"><div class="chat-bubble" data-t="chatWelcome">こんにちは！蓄電池の補助金について質問してください。</div></div>
+    <div class="chat-suggestions" id="chatSuggestions">
+      <button onclick="askChat('太陽光なしでも補助金使える？')">太陽光なしでもOK？</button>
+      <button onclick="askChat('補助金はいくつ併用できる？')">併用できる？</button>
+      <button onclick="askChat('DR契約って何？')">DR契約って？</button>
+      <button onclick="askChat('申請の流れは？')">申請の流れ</button>
+      <button onclick="askChat('工事前に申請必要？')">工事前申請？</button>
+    </div>
+  </div>
+  <div class="chat-input"><input type="text" id="chatInput" placeholder="質問を入力..." onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">&#10148;</button></div>
 </div>
 
 <script>
@@ -630,6 +696,93 @@ function loadFromUrl(){
     calculate();
   }catch(e){console.error(e);}
 }
+loadFromUrl();
+
+// === MARKET COMPARE ===
+const marketAvg={6:162,7:170,8:178,9:186,10:195,11:203,12:208,13:210,14:220,15:233,16:238,17:240};
+function renderMarket(r){
+  if(r.inp.usage!=='home'){document.getElementById('marketSection').style.display='none';return;}
+  const cap=Math.round(r.inp.capacity);const avg=marketAvg[cap]||Math.round(r.inp.capacity*16+35);
+  const yourPrice=r.totalCost;const diff=yourPrice-avg;const pctDiff=(diff/avg*100).toFixed(0);
+  let dealClass,dealText;
+  if(diff<=-10){dealClass='deal-good';dealText=L.dealGood||'お得な価格です！';}
+  else if(diff<=10){dealClass='deal-avg';dealText=L.dealAvg||'市場平均並みの価格です';}
+  else{dealClass='deal-high';dealText=L.dealHigh||'市場平均より高めです。複数見積もりを推奨';}
+  const maxP=Math.max(yourPrice,avg)*1.2;
+  let h='<div style="text-align:center"><span class="deal-badge '+dealClass+'">'+dealText+'</span></div>';
+  h+='<div class="market-bar"><div class="mlabel">'+(L.yourQuote||'あなたの見積')+'</div><div class="mbar-wrap"><div class="mbar-fill" style="width:'+(yourPrice/maxP*100)+'%;background:'+(diff>10?'#e74c3c':'#27ae60')+'">'+yourPrice.toFixed(0)+'万</div></div><div class="mval">'+yourPrice.toFixed(1)+'万円</div></div>';
+  h+='<div class="market-bar"><div class="mlabel">'+(L.marketAvg||'市場平均')+'('+cap+'kWh)</div><div class="mbar-wrap"><div class="mbar-fill" style="width:'+(avg/maxP*100)+'%;background:#3498db">'+avg+'万</div></div><div class="mval">'+avg+'.0万円</div></div>';
+  h+='<div style="text-align:center;font-size:11px;color:#888;margin-top:6px">'+(L.priceDiff||'差額')+': '+(diff>0?'+':'')+diff.toFixed(1)+'万円 ('+pctDiff+'%)</div>';
+  document.getElementById('marketCompare').innerHTML=h;
+  document.getElementById('marketSection').style.display='block';
+}
+
+// Patch renderResults to include market
+const origRender=renderResults;
+renderResults=function(r){origRender(r);renderMarket(r);};
+
+// === CHATBOT ===
+const faqData=[
+  {q:['太陽光','ソーラー','なし','ない'],a:'国のDR補助金は太陽光なしでも申請可能です（最大60万円）。ただし、東京都（最大120万円）・福岡市（最大40万円）・札幌市などの自治体補助は太陽光が条件のものが多いです。'},
+  {q:['併用','同時','複数','2つ'],a:'国の補助金同士（DR/子育て/ZEH）は併用不可で1つだけ選びます。ただし、国+都道府県+区市町村の補助金は併用可能な場合が多いです。東京都品川区なら最大167.5万円！'},
+  {q:['DR','デマンド','ディーアール'],a:'DR（デマンドレスポンス）は電力需給ひっ迫時に蓄電池の充放電を調整する仕組みです。年に数回程度の遠隔操作で、日常生活への影響はほぼありません。販売業者が手続きをサポートします。'},
+  {q:['申請','流れ','手順','ステップ'],a:'基本的な流れ: (1)補助金の選定→(2)事前申込（契約前に必須！）→(3)交付決定通知の受領→(4)工事契約・着工→(5)工事完了→(6)実績報告→(7)補助金入金（1-3ヶ月後）'},
+  {q:['工事','着工','前に','事前'],a:'ほとんどの補助金で「交付決定前の工事着工は不可」です。先に工事を始めると補助金の資格を失います。必ず事前申込→交付決定→着工の順序を守ってください。'},
+  {q:['SII','登録','対象','機器'],a:'SII（環境共創イニシアチブ）登録機器はSII公式サイトで型番検索できます。主要メーカー（シャープ、ニチコン、オムロン等）のほとんどの製品が登録済みです。販売業者に確認するのが最も確実です。'},
+  {q:['賃貸','マンション','アパート'],a:'基本的に賃貸住宅では難しいです。多くの補助金は「住宅所有者が自ら設置」が条件です。分譲マンションは管理組合の承認が必要な場合があります。'},
+  {q:['中古','リユース','再利用'],a:'すべての補助金制度で「未使用品（新品）」が条件です。中古品やリユース品は対象外です。'},
+  {q:['いくら','金額','最大','上限'],a:'最大額の例: 国DR補助金60万+東京都120万+品川区30万=最大167.5万円。福岡市なら国60万+市40万=100万円。蓄電池価格150-200万に対してかなりの補助が受けられます。'},
+  {q:['いつ','期限','締切','期間'],a:'2026年度DR補助金は12月10日まで（予算到達で早期終了の可能性大）。東京都は5月下旬から受付開始。2025年度は約3ヶ月で予算到達したので早めの申請が重要です。'},
+  {q:['処分','売却','返還'],a:'6年以内に蓄電池を処分（売却・廃棄）すると補助金の返還を求められる場合があります。長期使用を前提に導入してください。'},
+  {q:['業務','法人','企業','会社'],a:'業務用にはDR補助金（最大3億円）、ストレージパリティ（4万/kWh）、経営強化税制（即時償却or10%控除）などがあります。東京都の地産地消型は蓄電池単独設置もOKです。'},
+  {q:['価格','高い','安い','相場'],a:'10kWh蓄電池の市場相場は約150-200万円（工事費込み）。DR補助金の価格要件は12.5万円/kWh以下ですので、複数社から見積もりを取ることが重要です。'},
+];
+function findAnswer(q){
+  const ql=q.toLowerCase();
+  let best=null,bestScore=0;
+  faqData.forEach(f=>{let score=0;f.q.forEach(k=>{if(ql.includes(k))score++;});if(score>bestScore){bestScore=score;best=f;}});
+  return best?best.a:'申し訳ございません。その質問にはお答えできません。具体的なキーワード（太陽光、併用、DR、申請、SII、金額など）を含めて質問してみてください。';
+}
+function toggleChat(){const w=document.getElementById('chatWindow');w.style.display=w.style.display==='flex'?'none':'flex';}
+function askChat(q){document.getElementById('chatInput').value=q;sendChat();}
+function sendChat(){
+  const input=document.getElementById('chatInput');const q=input.value.trim();if(!q)return;
+  const body=document.getElementById('chatBody');
+  body.innerHTML+='<div class="chat-msg user"><div class="chat-bubble">'+q+'</div></div>';
+  input.value='';
+  setTimeout(()=>{
+    const a=findAnswer(q);
+    body.innerHTML+='<div class="chat-msg bot"><div class="chat-bubble">'+a+'</div></div>';
+    body.scrollTop=body.scrollHeight;
+  },300);
+  body.scrollTop=body.scrollHeight;
+}
+
+// === i18n ===
+const translations={
+  ja:{title:'蓄電池 補助金シミュレーター',subtitle:'2026年度（令和8年度）全国対応',calcBtn:'補助金を計算する',
+    chatTitle:'補助金Q&A チャット',chatWelcome:'こんにちは！蓄電池の補助金について質問してください。',
+    marketTitle:'市場価格との比較',dealGood:'お得な価格です！',dealAvg:'市場平均並みの価格です',dealHigh:'市場平均より高め。複数見積もり推奨',
+    yourQuote:'あなたの見積',marketAvg:'市場平均',priceDiff:'差額'},
+  en:{title:'Battery Subsidy Simulator',subtitle:'FY2026 - All Japan Prefectures',calcBtn:'Calculate Subsidy',
+    chatTitle:'Subsidy Q&A Chat',chatWelcome:'Hello! Ask me about battery subsidies in Japan.',
+    marketTitle:'Market Price Comparison',dealGood:'Great deal!',dealAvg:'Average market price',dealHigh:'Above average. Get multiple quotes.',
+    yourQuote:'Your quote',marketAvg:'Market avg',priceDiff:'Difference'},
+  zh:{title:'蓄电池补贴模拟器',subtitle:'2026年度 全日本对应',calcBtn:'计算补贴',
+    chatTitle:'补贴问答',chatWelcome:'您好！请询问关于蓄电池补贴的问题。',
+    marketTitle:'市场价格比较',dealGood:'价格优惠！',dealAvg:'接近市场均价',dealHigh:'高于市场均价，建议多方询价',
+    yourQuote:'您的报价',marketAvg:'市场均价',priceDiff:'差额'}
+};
+let L=translations.ja;
+function setLang(lang){
+  L=translations[lang]||translations.ja;
+  document.getElementById('t-title').textContent=L.title;
+  document.getElementById('t-subtitle').textContent=L.subtitle;
+  document.querySelectorAll('.lang-switch button').forEach(b=>{b.classList.toggle('active',b.textContent==={ja:'JP',en:'EN',zh:'CN'}[lang]);});
+  // Update dynamic text elements
+  document.querySelectorAll('[data-t]').forEach(el=>{if(L[el.dataset.t])el.textContent=L[el.dataset.t];});
+}
+
 loadFromUrl();
 </script>
 </body>
