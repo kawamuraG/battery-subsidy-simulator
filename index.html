@@ -127,6 +127,16 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
 .chat-suggestions button:hover{background:#d4e6f1}
 @media(max-width:600px){.chat-window{width:calc(100% - 20px);right:10px;bottom:90px;max-height:70vh}}
 
+/* FAQ accordion */
+.faq-item{border-bottom:1px solid #eee;padding:0}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;cursor:pointer;font-size:14px;font-weight:700;color:#1a5276;transition:color .2s}
+.faq-q:hover{color:#2e86c1}
+.faq-q .arrow{font-size:12px;transition:transform .2s;color:#888}
+.faq-q.open .arrow{transform:rotate(180deg)}
+.faq-a{display:none;padding:0 4px 14px 4px;font-size:13px;line-height:1.8;color:#555}
+.faq-a.open{display:block}
+.faq-cat{font-size:13px;font-weight:700;color:#fff;padding:6px 12px;border-radius:6px;margin:14px 0 8px 0;display:inline-block}
+
 /* Lang switcher */
 .lang-switch{position:absolute;top:10px;right:15px;display:flex;gap:4px}
 .lang-switch button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer}
@@ -312,6 +322,12 @@ body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f
 <div id="compareSection" style="display:none" class="no-print">
   <div class="card"><h2><span class="step">VS</span>パターン比較</h2><div class="compare-grid" id="compareGrid"></div>
   <div style="text-align:center;margin-top:10px"><button class="btn-sm btn-red" onclick="clearCompare()">比較クリア</button></div></div>
+</div>
+
+<!-- FAQ -->
+<div class="card no-print">
+  <h2><span class="step">?</span>よくある質問（FAQ）</h2>
+  <div id="faqArea"></div>
 </div>
 
 <!-- Customer -->
@@ -721,6 +737,56 @@ function renderMarket(r){
 // Patch renderResults to include market
 const origRender=renderResults;
 renderResults=function(r){origRender(r);renderMarket(r);};
+
+// === FAQ SECTION ===
+const faqSections=[
+  {cat:'基本',color:'#2471a3',items:[
+    {q:'蓄電池の補助金は誰でももらえますか？',a:'国のDR補助金は日本国内に居住し、自ら蓄電池を購入・設置する個人が対象です。ただし制度ごとに条件が異なります。<br><strong>DR補助金</strong>: SII登録機器・DR対応が条件。誰でも申請可。<br><strong>子育てグリーン</strong>: 子育て世帯・若者夫婦世帯のみ。<br><strong>ZEH補助</strong>: 新築ZEH住宅を建てる人のみ。'},
+    {q:'太陽光発電がなくても補助金はもらえますか？',a:'<strong>国のDR補助金は太陽光なしでも申請可能</strong>です（最大60万円）。ただし東京都（最大120万円）・福岡市（最大40万円）・札幌市などの自治体補助は太陽光が条件のものが多いです。'},
+    {q:'賃貸住宅でも補助金は使えますか？',a:'基本的に<strong>難しい</strong>です。多くの補助金は「住宅の所有者が自ら設置する」ことが条件です。分譲マンションの場合は管理組合の承認が必要なケースもあります。'},
+    {q:'中古の蓄電池でも補助金は使えますか？',a:'<strong>使えません。</strong>すべての補助金制度で「未使用品（新品）」が条件です。'},
+  ]},
+  {cat:'申請',color:'#27ae60',items:[
+    {q:'補助金の申請は自分でやる必要がありますか？',a:'国のDR補助金は<strong>販売業者が代行申請</strong>します。自治体の補助金は自分で申請するものが多いですが、施工業者がサポートしてくれる場合もあります。'},
+    {q:'工事を先に始めてしまっても大丈夫ですか？',a:'<strong>ダメです。</strong>ほとんどの制度で「交付決定前の工事着工は不可」です。先に工事を始めると補助金の資格を失います。必ず<strong>事前申込→交付決定→工事着工</strong>の順序を守ってください。'},
+    {q:'申請してからどのくらいで補助金がもらえますか？',a:'工事完了後の実績報告から<strong>1〜3ヶ月程度</strong>で入金されます。申請開始から入金まで全体で3〜6ヶ月程度を見込んでください。'},
+    {q:'予算がなくなったら申請できませんか？',a:'<strong>その通りです。</strong>多くの補助金は予算到達次第で受付終了します。2025年度のDR補助金は約3ヶ月で予算に達しました。<strong>早めの申請が重要</strong>です。'},
+  ]},
+  {cat:'併用・金額',color:'#8e44ad',items:[
+    {q:'国の補助金を2つ同時に使えますか？',a:'<strong>使えません。</strong>国の補助金（DR/子育て/ZEH）は併用不可で、最も有利な1つを選びます。一般的にはDR補助金（最大60万円）が最も高額です。'},
+    {q:'国と自治体の補助金は併用できますか？',a:'<strong>多くの場合、可能です。</strong>国1つ + 都道府県 + 区市町村を併用できます。<br>例（東京都品川区・10kWh）: 国37.5万 + 都100万 + 区30万 = <strong>最大167.5万円</strong>'},
+    {q:'蓄電池の価格が高すぎると補助金が受けられない？',a:'DR補助金には「設備費+工事費 ≦ 12.5万円/kWh」の要件があります。<strong>複数社から見積もりを取ることで基準を下回る価格が得られる場合があります。</strong>最低3社以上の見積もり取得を推奨します。'},
+  ]},
+  {cat:'注意事項',color:'#c0392b',items:[
+    {q:'補助金をもらった後に蓄電池を売却したらどうなりますか？',a:'<strong>6年以内に処分すると補助金の返還を求められる</strong>場合があります。長期使用を前提に導入してください。'},
+    {q:'DR契約って何ですか？面倒ですか？',a:'電力需給ひっ迫時に蓄電池の充放電を調整する仕組みです。年に数回程度の遠隔操作で、<strong>日常生活への影響はほぼありません</strong>。販売業者が手続きをサポートします。'},
+    {q:'SII登録機器かどうかはどこで確認できますか？',a:'SII公式サイトで型番検索できます。主要メーカー（シャープ、ニチコン、オムロン等）のほとんどの製品が登録済みです。販売業者に確認するのが最も確実です。'},
+    {q:'令和8年度から変わった点はありますか？',a:'<strong>DR補助金:</strong> セキュリティ対策・JIS規格準拠・類焼試験適合が必須に。<br><strong>東京都:</strong> 実績報告時に金融機関証明書が新たに必要。<br><strong>世田谷区:</strong> R8から蓄電池は対象外に。<strong>目黒区:</strong> R8で事業終了予定。'},
+  ]},
+  {cat:'業務用',color:'#2c3e50',items:[
+    {q:'法人でも補助金は使えますか？',a:'はい。業務用DR補助金（最大3億円）、ストレージパリティ補助金（4万/kWh）、経営強化税制（即時償却or10%控除）などがあります。東京都の地産地消型は蓄電池単独設置もOKです。'},
+    {q:'業務用で蓄電池だけ（太陽光なし）で使える補助金は？',a:'国の制度では限定的ですが、<strong>東京都の地産地消型再エネ事業は蓄電池の単独設置も対象</strong>です。それ以外は基本的に太陽光との併設が条件です。'},
+  ]},
+];
+
+function renderFaq(){
+  let h='';
+  faqSections.forEach((s,si)=>{
+    h+='<div class="faq-cat" style="background:'+s.color+'">'+s.cat+'</div>';
+    s.items.forEach((item,qi)=>{
+      const id='faq-'+si+'-'+qi;
+      h+='<div class="faq-item"><div class="faq-q" onclick="toggleFaq(\''+id+'\')">'+item.q+'<span class="arrow">&#9660;</span></div>';
+      h+='<div class="faq-a" id="'+id+'">'+item.a+'</div></div>';
+    });
+  });
+  document.getElementById('faqArea').innerHTML=h;
+}
+function toggleFaq(id){
+  const el=document.getElementById(id);const q=el.previousElementSibling;
+  const isOpen=el.classList.contains('open');
+  el.classList.toggle('open');q.classList.toggle('open');
+}
+renderFaq();
 
 // === CHATBOT ===
 const faqData=[
