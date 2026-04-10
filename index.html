@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蓄電池補助金シミュレーター 2026年度</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Meiryo', 'Yu Gothic', 'Hiragino Sans', sans-serif; background: #f0f4f8; color: #333; }
+  .header { background: linear-gradient(135deg, #1a5276, #2e86c1); color: white; text-align: center; padding: 30px 20px; }
+  .header h1 { font-size: 24px; margin-bottom: 5px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 16px; color: #1a5276; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #d4e6f1; }
+  .card h2 .step { background: #2e86c1; color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 8px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
+  .form-group select, .form-group input[type="number"] {
+    width: 100%; padding: 10px 12px; border: 2px solid #d5dbdb; border-radius: 8px;
+    font-size: 14px; font-family: inherit; transition: border-color 0.2s;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: #2e86c1; outline: none; }
+  .form-row { display: flex; gap: 15px; }
+  .form-row .form-group { flex: 1; }
+
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+  .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; font-size: 13px;
+    background: #f4f6f7; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+  .checkbox-group label:hover { background: #d4e6f1; }
+  .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; }
+
+  .btn { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border: none;
+    padding: 14px 40px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
+    width: 100%; transition: transform 0.1s, box-shadow 0.2s; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(39,174,96,0.3); }
+  .btn:active { transform: translateY(0); }
+
+  /* Results */
+  #results { display: none; }
+  .result-header { text-align: center; margin-bottom: 20px; }
+  .result-header .total { font-size: 42px; font-weight: bold; color: #e74c3c; }
+  .result-header .total-label { font-size: 14px; color: #666; }
+  .result-header .burden { font-size: 20px; color: #27ae60; font-weight: bold; margin-top: 5px; }
+
+  .result-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .result-table th, .result-table td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 13px; }
+  .result-table th { color: #888; font-weight: normal; font-size: 12px; }
+  .result-table .amount { text-align: right; font-weight: bold; font-size: 15px; }
+  .result-table .amount.positive { color: #27ae60; }
+  .result-table .amount.negative { color: #e74c3c; }
+  .result-table .subtotal { background: #f4f6f7; font-weight: bold; }
+  .result-table .grand-total { background: #d5f5e3; font-weight: bold; font-size: 14px; }
+  .result-table .burden-row { background: #fadbd8; font-weight: bold; font-size: 14px; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 5px; }
+  .tag-ok { background: #d5f5e3; color: #1e8449; }
+  .tag-ng { background: #fadbd8; color: #c0392b; }
+  .tag-info { background: #d4e6f1; color: #1a5276; }
+
+  .advice { background: #fef9e7; border-left: 4px solid #f39c12; padding: 12px 15px; margin: 15px 0; border-radius: 0 8px 8px 0; font-size: 12px; }
+  .warning { background: #fdedec; border-left: 4px solid #e74c3c; padding: 12px 15px; margin: 15px 0; border-radius: 0 8px 8px 0; font-size: 12px; }
+
+  .bar-chart { margin: 15px 0; }
+  .bar-item { margin-bottom: 8px; }
+  .bar-label { font-size: 12px; color: #666; margin-bottom: 3px; }
+  .bar-bg { background: #ecf0f1; border-radius: 6px; height: 24px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white; font-weight: bold; transition: width 0.5s ease; }
+
+  .footer { text-align: center; padding: 20px; font-size: 10px; color: #999; }
+
+  @media (max-width: 600px) {
+    .form-row { flex-direction: column; gap: 0; }
+    .result-header .total { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>蓄電池 補助金シミュレーター</h1>
+  <p>2026年度（令和8年度）対応 ｜ 東京都・北海道・福岡</p>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <h2><span class="step">1</span>基本情報</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>蓄電池の用途</label>
+        <select id="usage">
+          <option value="home">家庭用</option>
+          <option value="business">業務用</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>蓄電容量（kWh）</label>
+        <input type="number" id="capacity" value="10" min="1" max="100" step="0.1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>機器費（税抜・万円）</label>
+        <input type="number" id="equipCost" value="120" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>工事費（税抜・万円）</label>
+        <input type="number" id="installCost" value="30" min="0" step="1">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <h2><span class="step">2</span>お住まいの地域</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>都道府県</label>
+        <select id="prefecture">
+          <option value="tokyo">東京都</option>
+          <option value="hokkaido">北海道</option>
+          <option value="fukuoka">福岡県</option>
+          <option value="other">その他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>区市町村</label>
+        <select id="city">
+          <option value="">選択してください</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card">
+    <h2><span class="step">3</span>条件を選択</h2>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="hasSolar" checked> 太陽光発電あり</label>
+      <label><input type="checkbox" id="hasHems"> HEMS設置済み</label>
+      <label><input type="checkbox" id="isDR" checked> DR対応蓄電池</label>
+      <label><input type="checkbox" id="isSII" checked> SII登録機器</label>
+      <label><input type="checkbox" id="isChildcare"> 子育て/若者夫婦世帯</label>
+      <label><input type="checkbox" id="isNewBuild"> 新築ZEH住宅</label>
+      <label><input type="checkbox" id="isLocalContractor"> 区内/市内業者を利用</label>
+    </div>
+  </div>
+
+  <!-- Calculate Button -->
+  <button class="btn" onclick="calculate()">補助金を計算する</button>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="card" style="margin-top: 20px;">
+      <h2><span class="step">!</span>シミュレーション結果</h2>
+
+      <div class="result-header">
+        <div class="total-label">補助金合計（最大）</div>
+        <div class="total" id="totalSubsidy">0万円</div>
+        <div class="burden">実質負担額: <span id="totalBurden">0万円</span></div>
+      </div>
+
+      <div class="bar-chart" id="barChart"></div>
+
+      <table class="result-table">
+        <thead>
+          <tr><th>補助金制度</th><th>条件</th><th style="text-align:right;">金額</th></tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+
+      <div id="adviceArea"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  ※本シミュレーターは概算です。実際の補助金額は申請内容・審査結果により異なります。<br>
+  情報は2026年4月10日時点。最新情報は各制度の公式サイトをご確認ください。
+</div>
+
+<script>
+// City data
+const cityData = {
+  tokyo: [
+    {name:'千代田区', rate:0.2, max:125, note:'対象経費の20%（太陽光等含む合計）', type:'rate'},
+    {name:'中央区', unit:1, max:10, note:'1万/kWh', type:'unit'},
+    {name:'港区', fixed:20, note:'定額20万', type:'fixed'},
+    {name:'台東区', unit:1, max:10, note:'1万/kWh', type:'unit'},
+    {name:'墨田区', fixed:5, note:'定額5万', type:'fixed'},
+    {name:'江東区', unit:1, max:10, note:'1万/kWh（太陽光同時2.5万/上限20万）', type:'unit', solarUnit:2.5, solarMax:20},
+    {name:'品川区', unit:3, max:30, note:'3万/kWh', type:'unit'},
+    {name:'目黒区', rate:0.333, max:7, note:'本体1/3（上限7万）', type:'rate'},
+    {name:'中野区', fixed:10, note:'定額10万（4kWh以上）', type:'fixed', minCap:4},
+    {name:'杉並区', fixed:5, note:'定額5万', type:'fixed'},
+    {name:'北区', unit:1, max:10, note:'1万/kWh（区内業者1.2万/上限12万）', type:'unit', localUnit:1.2, localMax:12},
+    {name:'荒川区', unit:0.5, max:15, note:'0.5万/kWh（区外上限10万）', type:'unit', outsideMax:10},
+    {name:'足立区', fixed:5, note:'定額5万（区内業者6万）', type:'fixed', localFixed:6},
+    {name:'江戸川区', rate:0.25, max:20, note:'対象経費の1/4', type:'rate'},
+    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
+  ],
+  hokkaido: [
+    {name:'札幌市', unit:1.6, max:6.4, note:'1.6万/kWh', type:'unit'},
+    {name:'旭川市', rate:0.1, max:10, note:'対象経費の1/10', type:'rate'},
+    {name:'函館市', fixed:5, note:'定額5万', type:'fixed'},
+    {name:'帯広市', rate:0.1, max:20, note:'設置費用の1/10（既存上限20万）', type:'rate'},
+    {name:'釧路市', fixed:12, note:'定額12万（新築太陽光同時30万）', type:'fixed', solarNewFixed:30},
+    {name:'岩見沢市', fixed:7.5, note:'定額7.5万', type:'fixed'},
+    {name:'北斗市', unit:3, max:15, note:'3万/kWh or 1/3', type:'unit'},
+    {name:'士幌町', rate:0.333, max:51, note:'価格の1/3', type:'rate'},
+    {name:'置戸町', fixed:30, note:'定額30万（新築15万）', type:'fixed'},
+    {name:'栗山町', rate:0.333, max:15, note:'経費の1/3', type:'rate'},
+    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
+  ],
+  fukuoka: [
+    {name:'福岡市', rate:0.5, max:40, note:'機器費の1/2', type:'rate', needHems:true},
+    {name:'大野城市', rate:0.1, max:10, note:'機器費の1/10', type:'rate'},
+    {name:'太宰府市', unit:2.5, max:10, note:'2.5万/kWh', type:'unit'},
+    {name:'宗像市', rate:0.333, max:999, note:'価格の1/3', type:'rate'},
+    {name:'大木町', fixed:10, note:'定額10万', type:'fixed'},
+    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
+  ],
+  other: [
+    {name:'（自治体補助なし）', fixed:0, note:'', type:'fixed'},
+  ]
+};
+
+// Populate cities
+const prefSelect = document.getElementById('prefecture');
+const citySelect = document.getElementById('city');
+function updateCities() {
+  const pref = prefSelect.value;
+  citySelect.innerHTML = '';
+  (cityData[pref] || []).forEach((c, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = c.name;
+    citySelect.appendChild(opt);
+  });
+}
+prefSelect.addEventListener('change', updateCities);
+updateCities();
+
+function calculate() {
+  const usage = document.getElementById('usage').value;
+  const capacity = parseFloat(document.getElementById('capacity').value) || 0;
+  const equipCost = parseFloat(document.getElementById('equipCost').value) || 0;
+  const installCost = parseFloat(document.getElementById('installCost').value) || 0;
+  const totalCost = equipCost + installCost;
+  const unitPrice = capacity > 0 ? totalCost / capacity : 0;
+
+  const pref = prefSelect.value;
+  const cityIdx = parseInt(citySelect.value) || 0;
+  const city = (cityData[pref] || [])[cityIdx] || {fixed:0, type:'fixed', note:''};
+
+  const hasSolar = document.getElementById('hasSolar').checked;
+  const hasHems = document.getElementById('hasHems').checked;
+  const isDR = document.getElementById('isDR').checked;
+  const isSII = document.getElementById('isSII').checked;
+  const isChildcare = document.getElementById('isChildcare').checked;
+  const isNewBuild = document.getElementById('isNewBuild').checked;
+  const isLocal = document.getElementById('isLocalContractor').checked;
+
+  let results = [];
+  let advices = [];
+  let warnings = [];
+  let nationalChosen = 0;
+
+  if (usage === 'home') {
+    // --- National subsidies (pick best) ---
+    let drAmount = 0, childAmount = 0, zehAmount = 0;
+
+    // DR
+    if (isDR && isSII && unitPrice <= 12.5) {
+      drAmount = Math.min(capacity * 3.7, 60, totalCost * 0.3);
+    }
+    // Childcare
+    if (isChildcare) {
+      childAmount = 6.4; // base, could be up to 60 with multiple
+    }
+    // ZEH
+    if (isNewBuild) {
+      zehAmount = 20; // battery addition only
+    }
+
+    // Pick best national
+    let natName = '', natAmount = 0, natNote = '';
+    if (drAmount >= childAmount && drAmount >= zehAmount && drAmount > 0) {
+      natName = '国：DR補助金'; natAmount = drAmount; natNote = '3.7万/kWh, 上限60万, 費用の3/10以内';
+    } else if (zehAmount >= childAmount && zehAmount > 0) {
+      natName = '国：ZEH補助（蓄電池分）'; natAmount = zehAmount; natNote = '最大20万（ZEH本体55〜90万は別途）';
+    } else if (childAmount > 0) {
+      natName = '国：子育てグリーン住宅'; natAmount = childAmount; natNote = '蓄電池64,000円/戸';
+    }
+
+    if (natAmount > 0) {
+      results.push({name: natName, amount: Math.round(natAmount * 10) / 10, note: natNote, tag: 'ok', color: '#27ae60'});
+      nationalChosen = natAmount;
+    }
+
+    // Show alternatives
+    if (isDR && isSII && unitPrice > 12.5 && drAmount === 0) {
+      warnings.push('DR補助金の価格要件（≦12.5万円/kWh）を超えています。現在のkWh単価: ' + unitPrice.toFixed(1) + '万円。複数社から見積もりを取って価格を下げることを検討してください。');
+    }
+    if (!isSII) {
+      warnings.push('SII登録機器でないため、多くの補助金が利用できません。SII登録機器の選定をお勧めします。');
+    }
+
+    // --- Prefectural ---
+    let prefAmount = 0;
+    if (pref === 'tokyo' && hasSolar) {
+      prefAmount = Math.min(capacity * 10, 120);
+      results.push({name: '東京都：断熱・太陽光住宅事業', amount: prefAmount, note: '10万/kWh, 上限120万', tag: 'ok', color: '#2e86c1'});
+    } else if (pref === 'tokyo' && !hasSolar) {
+      advices.push('東京都の補助金（最大120万円）は太陽光発電の設置 or 再エネ電力契約が条件です。太陽光の導入を検討すると大幅に補助額が増えます。');
+    }
+
+    // --- City ---
+    let cityAmount = 0;
+    if (city.type === 'unit') {
+      let u = city.unit, m = city.max;
+      if (isLocal && city.localUnit) { u = city.localUnit; m = city.localMax || m; }
+      if (hasSolar && city.solarUnit) { u = city.solarUnit; m = city.solarMax || m; }
+      cityAmount = Math.min(capacity * u, m);
+    } else if (city.type === 'fixed') {
+      cityAmount = city.fixed || 0;
+      if (isLocal && city.localFixed) cityAmount = city.localFixed;
+      if (city.minCap && capacity < city.minCap) cityAmount = 0;
+    } else if (city.type === 'rate') {
+      let base = (city.name.includes('機器費') || city.name === '福岡市') ? equipCost : totalCost;
+      cityAmount = Math.min(base * city.rate, city.max);
+    }
+
+    if (city.needHems && !hasHems && cityAmount > 0) {
+      cityAmount = 0;
+      warnings.push(city.name + 'の補助金にはHEMS設置が必要です。');
+    }
+
+    if (cityAmount > 0) {
+      results.push({name: city.name + 'の補助金', amount: Math.round(cityAmount * 10) / 10, note: city.note, tag: 'ok', color: '#e67e22'});
+    }
+
+  } else {
+    // Business
+    if (capacity > 20 && isDR) {
+      let bizDR = Math.min(capacity * 3.8, totalCost / 3, 30000);
+      results.push({name: '国：DR補助金（業務用）', amount: Math.round(bizDR * 10) / 10, note: '3.8万/kWh or 1/3（上限3億）', tag: 'ok', color: '#27ae60'});
+    }
+    if (pref === 'tokyo') {
+      results.push({name: '東京都：地産地消型', amount: 0, note: '補助率は要確認（蓄電池単独設置OK）', tag: 'info', color: '#2e86c1'});
+    }
+    advices.push('業務用の場合、中小企業経営強化税制（即時償却 or 10%税額控除）も活用できます。2027年3月末まで。');
+  }
+
+  // Render
+  const totalSubsidy = results.reduce((s, r) => s + r.amount, 0);
+  const burden = Math.max(totalCost - totalSubsidy, 0);
+  const savingsRate = totalCost > 0 ? (totalSubsidy / totalCost * 100) : 0;
+
+  document.getElementById('totalSubsidy').textContent = totalSubsidy.toFixed(1) + '万円';
+  document.getElementById('totalBurden').textContent = burden.toFixed(1) + '万円';
+
+  // Table
+  let tbody = '';
+  results.forEach(r => {
+    const tagHtml = r.tag === 'ok' ? '<span class="tag tag-ok">適用</span>' :
+                    r.tag === 'ng' ? '<span class="tag tag-ng">対象外</span>' :
+                    '<span class="tag tag-info">要確認</span>';
+    tbody += '<tr><td>' + r.name + ' ' + tagHtml + '</td><td style="font-size:11px;color:#888;">' + r.note + '</td><td class="amount positive">+' + r.amount.toFixed(1) + '万</td></tr>';
+  });
+  tbody += '<tr class="grand-total"><td colspan="2">補助金合計</td><td class="amount positive">+' + totalSubsidy.toFixed(1) + '万円</td></tr>';
+  tbody += '<tr class="subtotal"><td colspan="2">蓄電池費用（税抜）</td><td class="amount">' + totalCost.toFixed(1) + '万円</td></tr>';
+  tbody += '<tr class="burden-row"><td colspan="2">実質負担額</td><td class="amount negative">' + burden.toFixed(1) + '万円</td></tr>';
+  document.getElementById('resultBody').innerHTML = tbody;
+
+  // Bar chart
+  let barHtml = '';
+  const maxBar = totalCost > 0 ? totalCost : 1;
+  results.forEach(r => {
+    const pct = Math.min(r.amount / maxBar * 100, 100);
+    barHtml += '<div class="bar-item"><div class="bar-label">' + r.name + ' (' + r.amount.toFixed(1) + '万円)</div>';
+    barHtml += '<div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%;background:' + r.color + ';">' + r.amount.toFixed(1) + '万</div></div></div>';
+  });
+  // Burden bar
+  const burdenPct = Math.min(burden / maxBar * 100, 100);
+  barHtml += '<div class="bar-item"><div class="bar-label">実質負担額 (' + burden.toFixed(1) + '万円)</div>';
+  barHtml += '<div class="bar-bg"><div class="bar-fill" style="width:' + burdenPct + '%;background:#e74c3c;">' + burden.toFixed(1) + '万</div></div></div>';
+  document.getElementById('barChart').innerHTML = barHtml;
+
+  // Advice
+  let advHtml = '';
+  if (savingsRate >= 80) {
+    advHtml += '<div class="advice"><strong>補助金カバー率 ' + savingsRate.toFixed(0) + '%！</strong> 実質負担が非常に少なく、導入の好機です。</div>';
+  } else if (savingsRate >= 50) {
+    advHtml += '<div class="advice"><strong>補助金カバー率 ' + savingsRate.toFixed(0) + '%</strong> 半額以上が補助金でカバーされます。</div>';
+  }
+  advices.forEach(a => { advHtml += '<div class="advice">' + a + '</div>'; });
+  warnings.forEach(w => { advHtml += '<div class="warning"><strong>注意: </strong>' + w + '</div>'; });
+
+  if (!isDR && !isChildcare && !isNewBuild) {
+    advHtml += '<div class="warning">国の補助金の条件を満たしていません。DR対応蓄電池の選定、または子育て世帯/ZEH住宅の条件を確認してください。</div>';
+  }
+
+  document.getElementById('adviceArea').innerHTML = advHtml;
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+
+</body>
+</html>
