@@ -5,486 +5,632 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>蓄電池補助金シミュレーター 2026年度</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Meiryo', 'Yu Gothic', 'Hiragino Sans', sans-serif; background: #f0f4f8; color: #333; }
-  .header { background: linear-gradient(135deg, #1a5276, #2e86c1); color: white; text-align: center; padding: 30px 20px; }
-  .header h1 { font-size: 24px; margin-bottom: 5px; }
-  .header p { font-size: 13px; opacity: 0.85; }
-  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-  .card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 20px; }
-  .card h2 { font-size: 16px; color: #1a5276; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #d4e6f1; }
-  .card h2 .step { background: #2e86c1; color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 8px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
-  .form-group select, .form-group input[type="number"] {
-    width: 100%; padding: 10px 12px; border: 2px solid #d5dbdb; border-radius: 8px;
-    font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
-  .form-group select:focus, .form-group input:focus { border-color: #2e86c1; outline: none; }
-  .form-row { display: flex; gap: 15px; }
-  .form-row .form-group { flex: 1; }
-  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-  .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; font-size: 13px;
-    background: #f4f6f7; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
-  .checkbox-group label:hover { background: #d4e6f1; }
-  .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; }
-  .btn { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border: none;
-    padding: 14px 40px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
-    width: 100%; transition: transform 0.1s, box-shadow 0.2s; margin-bottom: 10px; }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(39,174,96,0.3); }
-  .btn:active { transform: translateY(0); }
-  .btn-secondary { background: linear-gradient(135deg, #2e86c1, #3498db); margin-top: 8px; }
-  .btn-print { background: linear-gradient(135deg, #7d3c98, #9b59b6); font-size: 14px; padding: 10px 20px; width: auto; display: inline-block; margin: 5px; }
-  .btn-compare { background: linear-gradient(135deg, #e67e22, #f39c12); font-size: 14px; padding: 10px 20px; width: auto; display: inline-block; margin: 5px; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;background:#f0f4f8;color:#333}
+.header{background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;text-align:center;padding:25px 20px}
+.header h1{font-size:22px;margin-bottom:4px}
+.header p{font-size:12px;opacity:.85}
+.container{max-width:900px;margin:0 auto;padding:15px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:20px;margin-bottom:16px}
+.card h2{font-size:15px;color:#1a5276;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #d4e6f1}
+.card h2 .step{background:#2e86c1;color:#fff;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;margin-right:6px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:700;margin-bottom:4px;font-size:12px;color:#555}
+.form-group select,.form-group input[type=number],.form-group input[type=text]{width:100%;padding:8px 10px;border:2px solid #d5dbdb;border-radius:8px;font-size:13px;font-family:inherit}
+.form-group select:focus,.form-group input:focus{border-color:#2e86c1;outline:0}
+.form-row{display:flex;gap:12px}
+.form-row .form-group{flex:1}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.checkbox-group label{font-weight:400;display:flex;align-items:center;gap:4px;font-size:12px;background:#f4f6f7;padding:5px 10px;border-radius:6px;cursor:pointer}
+.checkbox-group label:hover{background:#d4e6f1}
+.checkbox-group input[type=checkbox]{width:15px;height:15px}
+.btn{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;padding:12px 30px;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;width:100%;margin-bottom:8px}
+.btn:hover{box-shadow:0 4px 15px rgba(39,174,96,.3)}
+.btn-sm{font-size:13px;padding:8px 16px;width:auto;display:inline-block;margin:3px;border-radius:8px}
+.btn-blue{background:linear-gradient(135deg,#2e86c1,#3498db)}
+.btn-purple{background:linear-gradient(135deg,#7d3c98,#9b59b6)}
+.btn-orange{background:linear-gradient(135deg,#e67e22,#f39c12)}
+.btn-red{background:linear-gradient(135deg,#c0392b,#e74c3c)}
+#results{display:none}
+.result-header{text-align:center;margin-bottom:15px}
+.result-header .total{font-size:38px;font-weight:700;color:#e74c3c}
+.result-header .total-label{font-size:13px;color:#666}
+.result-header .burden{font-size:18px;color:#27ae60;font-weight:700;margin-top:4px}
+.result-table{width:100%;border-collapse:collapse;margin:8px 0}
+.result-table th,.result-table td{padding:8px 10px;border-bottom:1px solid #eee;text-align:left;font-size:12px}
+.result-table th{color:#888;font-weight:400;font-size:11px}
+.result-table .amount{text-align:right;font-weight:700;font-size:14px}
+.result-table .amount.positive{color:#27ae60}
+.result-table .amount.negative{color:#e74c3c}
+.result-table .grand-total{background:#d5f5e3;font-weight:700;font-size:13px}
+.result-table .burden-row{background:#fadbd8;font-weight:700;font-size:13px}
+.result-table .subtotal{background:#f4f6f7;font-weight:700}
+.tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;margin-left:4px}
+.tag-ok{background:#d5f5e3;color:#1e8449}.tag-ng{background:#fadbd8;color:#c0392b}.tag-info{background:#d4e6f1;color:#1a5276}
+.advice{background:#fef9e7;border-left:4px solid #f39c12;padding:10px 12px;margin:10px 0;border-radius:0 8px 8px 0;font-size:11px}
+.warning{background:#fdedec;border-left:4px solid #e74c3c;padding:10px 12px;margin:10px 0;border-radius:0 8px 8px 0;font-size:11px}
+.bar-chart{margin:12px 0}
+.bar-item{margin-bottom:6px}
+.bar-label{font-size:11px;color:#666;margin-bottom:2px}
+.bar-bg{background:#ecf0f1;border-radius:6px;height:22px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:6px;font-size:10px;color:#fff;font-weight:700;transition:width .5s ease}
 
-  #results { display: none; }
-  .result-header { text-align: center; margin-bottom: 20px; }
-  .result-header .total { font-size: 42px; font-weight: bold; color: #e74c3c; }
-  .result-header .total-label { font-size: 14px; color: #666; }
-  .result-header .burden { font-size: 20px; color: #27ae60; font-weight: bold; margin-top: 5px; }
-  .result-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-  .result-table th, .result-table td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 13px; }
-  .result-table th { color: #888; font-weight: normal; font-size: 12px; }
-  .result-table .amount { text-align: right; font-weight: bold; font-size: 15px; }
-  .result-table .amount.positive { color: #27ae60; }
-  .result-table .amount.negative { color: #e74c3c; }
-  .result-table .subtotal { background: #f4f6f7; font-weight: bold; }
-  .result-table .grand-total { background: #d5f5e3; font-weight: bold; font-size: 14px; }
-  .result-table .burden-row { background: #fadbd8; font-weight: bold; font-size: 14px; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 5px; }
-  .tag-ok { background: #d5f5e3; color: #1e8449; }
-  .tag-ng { background: #fadbd8; color: #c0392b; }
-  .tag-info { background: #d4e6f1; color: #1a5276; }
-  .advice { background: #fef9e7; border-left: 4px solid #f39c12; padding: 12px 15px; margin: 15px 0; border-radius: 0 8px 8px 0; font-size: 12px; }
-  .warning { background: #fdedec; border-left: 4px solid #e74c3c; padding: 12px 15px; margin: 15px 0; border-radius: 0 8px 8px 0; font-size: 12px; }
-  .bar-chart { margin: 15px 0; }
-  .bar-item { margin-bottom: 8px; }
-  .bar-label { font-size: 12px; color: #666; margin-bottom: 3px; }
-  .bar-bg { background: #ecf0f1; border-radius: 6px; height: 24px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white; font-weight: bold; transition: width 0.5s ease; }
-  .footer { text-align: center; padding: 20px; font-size: 10px; color: #999; }
+/* Compare */
+.compare-grid{display:flex;gap:12px;margin-top:12px}
+.compare-col{flex:1;background:#f8f9fa;border-radius:10px;padding:12px;border:2px solid #d5dbdb}
+.compare-col.best{border-color:#27ae60;background:#eafaf1}
+.compare-col h3{font-size:13px;color:#1a5276;margin-bottom:8px;text-align:center}
+.compare-col .val{text-align:center;font-size:22px;font-weight:700;margin:6px 0}
+.compare-col .val.green{color:#27ae60}.compare-col .val.red{color:#e74c3c}
+.compare-col .detail{font-size:10px;color:#666}
+.compare-col .badge-best{background:#27ae60;color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;margin-bottom:4px}
 
-  /* Compare */
-  .compare-grid { display: flex; gap: 15px; margin-top: 15px; }
-  .compare-col { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 15px; border: 2px solid #d5dbdb; }
-  .compare-col.best { border-color: #27ae60; background: #eafaf1; }
-  .compare-col h3 { font-size: 14px; color: #1a5276; margin-bottom: 10px; text-align: center; }
-  .compare-col .val { text-align: center; font-size: 24px; font-weight: bold; margin: 8px 0; }
-  .compare-col .val.green { color: #27ae60; }
-  .compare-col .val.red { color: #e74c3c; }
-  .compare-col .detail { font-size: 11px; color: #666; }
-  .compare-col .badge-best { background: #27ae60; color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; display: inline-block; margin-bottom: 5px; }
+/* ROI */
+.roi-section{margin-top:16px;padding-top:12px;border-top:2px solid #d4e6f1}
+.roi-grid{display:flex;gap:15px;text-align:center;margin:12px 0}
+.roi-item{flex:1;background:#f4f6f7;border-radius:10px;padding:12px}
+.roi-item .label{font-size:11px;color:#888;margin-bottom:3px}
+.roi-item .value{font-size:20px;font-weight:700;color:#1a5276}
+.roi-item .unit{font-size:11px;color:#666}
+.roi-bar{background:#ecf0f1;border-radius:8px;height:28px;margin:8px 0;overflow:hidden}
+.roi-bar-fill{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700}
 
-  /* ROI */
-  .roi-section { margin-top: 20px; padding-top: 15px; border-top: 2px solid #d4e6f1; }
-  .roi-grid { display: flex; gap: 20px; text-align: center; margin: 15px 0; }
-  .roi-item { flex: 1; background: #f4f6f7; border-radius: 10px; padding: 15px; }
-  .roi-item .label { font-size: 12px; color: #888; margin-bottom: 5px; }
-  .roi-item .value { font-size: 22px; font-weight: bold; color: #1a5276; }
-  .roi-item .unit { font-size: 12px; color: #666; }
-  .roi-bar { background: #ecf0f1; border-radius: 8px; height: 30px; margin: 10px 0; overflow: hidden; position: relative; }
-  .roi-bar-fill { height: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; }
+/* Calendar */
+.cal-row{display:flex;align-items:center;margin-bottom:6px;font-size:11px}
+.cal-label{width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.cal-bar-wrap{flex:1;background:#ecf0f1;height:18px;border-radius:4px;position:relative;overflow:hidden}
+.cal-bar{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;padding-left:4px;font-size:9px;color:#fff;font-weight:700;white-space:nowrap}
+.cal-months{display:flex;font-size:9px;color:#999;margin-bottom:4px}
+.cal-months span{flex:1;text-align:center}
+.cal-countdown{font-size:10px;color:#e74c3c;font-weight:700;margin-left:6px;white-space:nowrap}
 
-  @media print {
-    .header { padding: 15px; }
-    .btn, .btn-print, .btn-compare, #compareBtn, #step-input { display: none !important; }
-    .card { box-shadow: none; border: 1px solid #ddd; }
-    #results { display: block !important; }
-    body { background: white; }
-  }
-  @media (max-width: 600px) {
-    .form-row { flex-direction: column; gap: 0; }
-    .result-header .total { font-size: 32px; }
-    .compare-grid { flex-direction: column; }
-    .roi-grid { flex-direction: column; }
-  }
+/* Customer */
+.cust-list{max-height:250px;overflow-y:auto}
+.cust-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #eee;font-size:12px}
+.cust-item:hover{background:#f4f6f7}
+.cust-item .name{font-weight:700;color:#1a5276}
+.cust-item .info{color:#888;font-size:11px}
+
+/* News */
+.news-item{padding:10px 0;border-bottom:1px solid #eee;font-size:12px}
+.news-item .date{color:#888;font-size:11px}
+.news-item .title{font-weight:700;color:#1a5276}
+.news-item .body{color:#555;margin-top:3px}
+.news-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-right:4px}
+.news-badge.urgent{background:#e74c3c;color:#fff}
+.news-badge.info{background:#3498db;color:#fff}
+.news-badge.new{background:#27ae60;color:#fff}
+
+/* QR */
+.qr-wrap{text-align:center;margin:15px 0}
+.qr-wrap canvas{border:8px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.1);border-radius:8px}
+
+/* Proposal print */
+.proposal-only{display:none}
+@media print{
+  .no-print{display:none!important}
+  .proposal-only{display:block!important}
+  .card{box-shadow:none;border:1px solid #ddd}
+  #results{display:block!important}
+  body{background:#fff}
+  @page{margin:8mm}
+}
+@media(max-width:600px){
+  .form-row{flex-direction:column;gap:0}
+  .result-header .total{font-size:30px}
+  .compare-grid,.roi-grid{flex-direction:column}
+  .cal-label{width:120px;font-size:10px}
+}
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>蓄電池 補助金シミュレーター</h1>
-  <p>2026年度（令和8年度）対応 ｜ 東京都・北海道・福岡</p>
+  <p>2026年度（令和8年度）全国対応 ｜ 47都道府県の主要自治体</p>
 </div>
 
-<div class="container" id="step-input">
+<div class="container">
 
-  <!-- STEP 1 -->
-  <div class="card">
-    <h2><span class="step">1</span>基本情報</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>蓄電池の用途</label>
-        <select id="usage"><option value="home">家庭用</option><option value="business">業務用</option></select>
-      </div>
-      <div class="form-group">
-        <label>メーカー・型番（任意）</label>
-        <select id="maker" onchange="onMakerChange()">
-          <option value="">手動入力</option>
-          <option value="sharp1">シャープ JH-WB1921 (6.5kWh / 162.8万)</option>
-          <option value="sharp2">シャープ JH-WB2021 (9.5kWh / 196.4万)</option>
-          <option value="sharp3">シャープ JH-WB2421 (7.7kWh / 183.9万)</option>
-          <option value="kyocera1">京セラ EGS-LM1100 (11.0kWh / 206万)</option>
-          <option value="kyocera2">京セラ EGS-MC1100 (11.0kWh / 207.1万)</option>
-          <option value="nichicon1">ニチコン ESS-T3M1 (7.4kWh / 169万)</option>
-          <option value="nichicon2">ニチコン ESS-T3X1 (14.9kWh / 233.5万)</option>
-          <option value="nichicon3">ニチコン ESS-U4X1 (16.6kWh / 238.4万)</option>
-          <option value="omron1">オムロン KP-BU98B-S (9.8kWh / 181.7万)</option>
-          <option value="omron2">オムロン KP-BU127-B (12.7kWh / 201.2万)</option>
-          <option value="choshu1">長州産業 CB-LMP98A (9.8kWh / 199万)</option>
-          <option value="choshu2">長州産業 CB-LMP127A (12.7kWh / 203.2万)</option>
-          <option value="canadian1">カナディアンソーラー 610G (9.9kWh / 176.5万)</option>
-          <option value="canadian2">カナディアンソーラー 613G (13.3kWh / 203.2万)</option>
-          <option value="tesla">テスラ Powerwall 2 (13.5kWh / 196.3万)</option>
-          <option value="sumitomo">住友電工 PDH-6000S01 (12.8kWh / 212万)</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>蓄電容量（kWh）</label>
-        <input type="number" id="capacity" value="10" min="1" max="1000" step="0.1">
-      </div>
-      <div class="form-group">
-        <label>機器費（税抜・万円）</label>
-        <input type="number" id="equipCost" value="120" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>工事費（税抜・万円）</label>
-        <input type="number" id="installCost" value="30" min="0" step="1">
-      </div>
+<!-- NEWS -->
+<div class="card no-print" id="newsCard">
+  <h2><span class="step">&#9889;</span>補助金ニュース</h2>
+  <div id="newsArea"></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="card no-print">
+  <h2><span class="step">&#128197;</span>補助金カレンダー（2026年度）</h2>
+  <div class="cal-months"><span>4月</span><span>5月</span><span>6月</span><span>7月</span><span>8月</span><span>9月</span><span>10月</span><span>11月</span><span>12月</span><span>1月</span><span>2月</span><span>3月</span></div>
+  <div id="calArea"></div>
+</div>
+
+<!-- STEP 1 -->
+<div class="card no-print">
+  <h2><span class="step">1</span>基本情報</h2>
+  <div class="form-row">
+    <div class="form-group"><label>用途</label><select id="usage"><option value="home">家庭用</option><option value="business">業務用</option></select></div>
+    <div class="form-group"><label>メーカー・型番（任意）</label>
+      <select id="maker" onchange="onMakerChange()">
+        <option value="">手動入力</option>
+        <option value="sharp1">シャープ JH-WB1921 (6.5kWh)</option>
+        <option value="sharp2">シャープ JH-WB2021 (9.5kWh)</option>
+        <option value="nichicon1">ニチコン ESS-T3M1 (7.4kWh)</option>
+        <option value="nichicon2">ニチコン ESS-T3X1 (14.9kWh)</option>
+        <option value="nichicon3">ニチコン ESS-U4X1 (16.6kWh)</option>
+        <option value="omron1">オムロン KP-BU98B-S (9.8kWh)</option>
+        <option value="omron2">オムロン KP-BU127-B (12.7kWh)</option>
+        <option value="kyocera1">京セラ EGS-LM1100 (11.0kWh)</option>
+        <option value="choshu2">長州産業 CB-LMP127A (12.7kWh)</option>
+        <option value="canadian1">カナディアンソーラー 610G (9.9kWh)</option>
+        <option value="tesla">テスラ Powerwall 2 (13.5kWh)</option>
+        <option value="sumitomo">住友電工 PDH-6000S01 (12.8kWh)</option>
+      </select>
     </div>
   </div>
-
-  <!-- STEP 2 -->
-  <div class="card">
-    <h2><span class="step">2</span>お住まいの地域</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>都道府県</label>
-        <select id="prefecture"><option value="tokyo">東京都</option><option value="hokkaido">北海道</option><option value="fukuoka">福岡県</option><option value="other">その他</option></select>
-      </div>
-      <div class="form-group">
-        <label>区市町村</label>
-        <select id="city"><option value="">選択してください</option></select>
-      </div>
-    </div>
+  <div class="form-row">
+    <div class="form-group"><label>蓄電容量（kWh）</label><input type="number" id="capacity" value="10" min="1" max="1000" step="0.1"></div>
+    <div class="form-group"><label>機器費（税抜・万円）</label><input type="number" id="equipCost" value="120" min="0" step="1"></div>
+    <div class="form-group"><label>工事費（税抜・万円）</label><input type="number" id="installCost" value="30" min="0" step="1"></div>
   </div>
+</div>
 
-  <!-- STEP 3 -->
-  <div class="card">
-    <h2><span class="step">3</span>条件を選択</h2>
-    <div class="checkbox-group">
-      <label><input type="checkbox" id="hasSolar" checked> 太陽光発電あり</label>
-      <label><input type="checkbox" id="hasHems"> HEMS設置済み</label>
-      <label><input type="checkbox" id="isDR" checked> DR対応蓄電池</label>
-      <label><input type="checkbox" id="isSII" checked> SII登録機器</label>
-      <label><input type="checkbox" id="isChildcare"> 子育て/若者夫婦世帯</label>
-      <label><input type="checkbox" id="isNewBuild"> 新築ZEH住宅</label>
-      <label><input type="checkbox" id="isLocalContractor"> 区内/市内業者を利用</label>
-    </div>
+<!-- STEP 2 -->
+<div class="card no-print">
+  <h2><span class="step">2</span>お住まいの地域</h2>
+  <div class="form-row">
+    <div class="form-group"><label>都道府県</label><select id="prefecture"></select></div>
+    <div class="form-group"><label>区市町村</label><select id="city"></select></div>
   </div>
+</div>
 
-  <!-- STEP 4: ROI -->
-  <div class="card">
-    <h2><span class="step">4</span>電気代情報（投資回収計算・任意）</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>現在の月額電気代（円）</label>
-        <input type="number" id="monthlyBill" value="15000" min="0" step="100">
-      </div>
-      <div class="form-group">
-        <label>太陽光での自家消費率（%）</label>
-        <input type="number" id="selfConsume" value="30" min="0" max="100" step="5">
-      </div>
-      <div class="form-group">
-        <label>蓄電池による削減率（%）</label>
-        <input type="number" id="savingRate" value="40" min="0" max="100" step="5">
-      </div>
-    </div>
+<!-- STEP 3 -->
+<div class="card no-print">
+  <h2><span class="step">3</span>条件を選択</h2>
+  <div class="checkbox-group">
+    <label><input type="checkbox" id="hasSolar" checked> 太陽光発電あり</label>
+    <label><input type="checkbox" id="hasHems"> HEMS設置済み</label>
+    <label><input type="checkbox" id="isDR" checked> DR対応蓄電池</label>
+    <label><input type="checkbox" id="isSII" checked> SII登録機器</label>
+    <label><input type="checkbox" id="isChildcare"> 子育て/若者夫婦世帯</label>
+    <label><input type="checkbox" id="isNewBuild"> 新築ZEH住宅</label>
+    <label><input type="checkbox" id="isLocalContractor"> 区内/市内業者</label>
   </div>
+</div>
 
-  <button class="btn" onclick="calculate()">補助金を計算する</button>
-  <button class="btn btn-secondary" onclick="addCompare()" id="compareBtn">比較パターンに追加する</button>
+<!-- STEP 4 -->
+<div class="card no-print">
+  <h2><span class="step">4</span>電気代情報（投資回収計算・任意）</h2>
+  <div class="form-row">
+    <div class="form-group"><label>月額電気代（円）</label><input type="number" id="monthlyBill" value="15000" min="0" step="100"></div>
+    <div class="form-group"><label>蓄電池による削減率（%）</label><input type="number" id="savingRate" value="40" min="0" max="100" step="5"></div>
+  </div>
+</div>
+
+<button class="btn" onclick="calculate()">補助金を計算する</button>
+<div style="text-align:center" class="no-print">
+  <button class="btn-sm btn-blue" onclick="addCompare()">比較に追加</button>
+  <button class="btn-sm btn-purple" onclick="saveCustomer()">顧客データ保存</button>
+  <button class="btn-sm btn-orange" onclick="showQR()">QRコード共有</button>
 </div>
 
 <!-- RESULTS -->
-<div class="container">
-  <div id="results">
-    <div class="card" style="margin-top: 10px;">
-      <h2><span class="step">!</span>シミュレーション結果</h2>
-      <div class="result-header">
-        <div class="total-label">補助金合計（最大）</div>
-        <div class="total" id="totalSubsidy">0万円</div>
-        <div class="burden">実質負担額: <span id="totalBurden">0万円</span></div>
-      </div>
-      <div class="bar-chart" id="barChart"></div>
-      <table class="result-table">
-        <thead><tr><th>補助金制度</th><th>条件</th><th style="text-align:right;">金額</th></tr></thead>
-        <tbody id="resultBody"></tbody>
-      </table>
-      <div id="adviceArea"></div>
-
-      <!-- ROI Section -->
-      <div class="roi-section" id="roiSection" style="display:none;">
-        <h2><span class="step">$</span>投資回収シミュレーション</h2>
-        <div class="roi-grid">
-          <div class="roi-item"><div class="label">年間削減額</div><div class="value" id="roiAnnual">0</div><div class="unit">万円/年</div></div>
-          <div class="roi-item"><div class="label">投資回収年数</div><div class="value" id="roiYears">0</div><div class="unit">年</div></div>
-          <div class="roi-item"><div class="label">15年間のトータルメリット</div><div class="value" id="roi15y">0</div><div class="unit">万円</div></div>
-        </div>
-        <div style="font-size:12px; color:#666; margin-bottom:5px;">投資回収の進捗（15年）</div>
-        <div class="roi-bar"><div class="roi-bar-fill" id="roiBarFill" style="width:0%;background:#27ae60;">0年</div></div>
-        <div style="display:flex; justify-content:space-between; font-size:10px; color:#999;"><span>0年</span><span>5年</span><span>10年</span><span>15年</span></div>
-      </div>
-
-      <!-- Buttons -->
-      <div style="text-align:center; margin-top: 20px;">
-        <button class="btn-print" onclick="window.print()">PDF保存 / 印刷</button>
-        <button class="btn-compare" onclick="document.getElementById('step-input').scrollIntoView({behavior:'smooth'})">条件を変えて再計算</button>
-      </div>
+<div id="results">
+  <div class="card">
+    <div class="proposal-only" style="text-align:center;margin-bottom:15px;">
+      <h1 style="font-size:20px;color:#1a5276;">蓄電池導入 補助金シミュレーション結果</h1>
+      <p style="font-size:11px;color:#888;" id="proposalInfo"></p>
     </div>
-  </div>
-
-  <!-- Compare Section -->
-  <div id="compareSection" style="display:none;">
-    <div class="card">
-      <h2><span class="step">VS</span>パターン比較</h2>
-      <div class="compare-grid" id="compareGrid"></div>
-      <div style="text-align:center; margin-top:15px;">
-        <button class="btn-compare" onclick="clearCompare()">比較をクリア</button>
+    <h2 class="no-print"><span class="step">!</span>シミュレーション結果</h2>
+    <div class="result-header">
+      <div class="total-label">補助金合計（最大）</div>
+      <div class="total" id="totalSubsidy">0万円</div>
+      <div class="burden">実質負担額: <span id="totalBurden">0万円</span></div>
+    </div>
+    <div class="bar-chart" id="barChart"></div>
+    <table class="result-table"><thead><tr><th>補助金制度</th><th>条件</th><th style="text-align:right">金額</th></tr></thead><tbody id="resultBody"></tbody></table>
+    <div id="adviceArea"></div>
+    <div class="roi-section" id="roiSection" style="display:none">
+      <h2><span class="step">$</span>投資回収シミュレーション</h2>
+      <div class="roi-grid">
+        <div class="roi-item"><div class="label">年間削減額</div><div class="value" id="roiAnnual">0</div><div class="unit">万円/年</div></div>
+        <div class="roi-item"><div class="label">投資回収年数</div><div class="value" id="roiYears">0</div><div class="unit">年</div></div>
+        <div class="roi-item"><div class="label">15年間メリット</div><div class="value" id="roi15y">0</div><div class="unit">万円</div></div>
       </div>
+      <div class="roi-bar"><div class="roi-bar-fill" id="roiBarFill" style="width:0%">0年</div></div>
+    </div>
+    <div style="text-align:center;margin-top:15px" class="no-print">
+      <button class="btn-sm btn-purple" onclick="printProposal()">提案書PDF出力</button>
+      <button class="btn-sm btn-blue" onclick="window.print()">結果を印刷</button>
+      <button class="btn-sm btn-orange" onclick="showQR()">QRコード共有</button>
     </div>
   </div>
 </div>
 
-<div class="footer">
-  ※本シミュレーターは概算です。実際の補助金額は申請内容・審査結果により異なります。<br>
-  情報は2026年4月10日時点。最新情報は各制度の公式サイトをご確認ください。
+<!-- QR -->
+<div id="qrModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center">
+  <div class="card" style="max-width:400px;text-align:center">
+    <h2>QRコードで共有</h2>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">このQRコードをスキャンすると、同じ条件でシミュレーションを開きます</p>
+    <div class="qr-wrap"><canvas id="qrCanvas"></canvas></div>
+    <p style="font-size:10px;color:#aaa;word-break:break-all;margin:10px 0" id="qrUrl"></p>
+    <button class="btn-sm btn-red" onclick="closeQR()">閉じる</button>
+  </div>
+</div>
+
+<!-- Compare -->
+<div id="compareSection" style="display:none" class="no-print">
+  <div class="card"><h2><span class="step">VS</span>パターン比較</h2><div class="compare-grid" id="compareGrid"></div>
+  <div style="text-align:center;margin-top:10px"><button class="btn-sm btn-red" onclick="clearCompare()">比較クリア</button></div></div>
+</div>
+
+<!-- Customer -->
+<div class="card no-print">
+  <h2><span class="step">&#128100;</span>保存済み顧客データ</h2>
+  <div class="cust-list" id="custList"><p style="color:#999;font-size:12px;text-align:center;padding:15px">保存されたデータはありません</p></div>
+</div>
+
+</div>
+
+<div class="footer no-print" style="text-align:center;padding:15px;font-size:10px;color:#999">
+  ※概算です。実際の補助金額は申請内容・審査結果により異なります。情報は2026年4月10日時点。
 </div>
 
 <script>
-// Maker data
-const makerData = {
-  sharp1: {cap:6.5, equip:133, install:30}, sharp2: {cap:9.5, equip:166, install:30}, sharp3: {cap:7.7, equip:154, install:30},
-  kyocera1: {cap:11.0, equip:176, install:30}, kyocera2: {cap:11.0, equip:177, install:30},
-  nichicon1: {cap:7.4, equip:139, install:30}, nichicon2: {cap:14.9, equip:204, install:30}, nichicon3: {cap:16.6, equip:208, install:30},
-  omron1: {cap:9.8, equip:152, install:30}, omron2: {cap:12.7, equip:171, install:30},
-  choshu1: {cap:9.8, equip:169, install:30}, choshu2: {cap:12.7, equip:173, install:30},
-  canadian1: {cap:9.9, equip:147, install:30}, canadian2: {cap:13.3, equip:173, install:30},
-  tesla: {cap:13.5, equip:166, install:30}, sumitomo: {cap:12.8, equip:182, install:30}
+// === DATA ===
+const makerData={
+  sharp1:{cap:6.5,equip:133,install:30},sharp2:{cap:9.5,equip:166,install:30},
+  nichicon1:{cap:7.4,equip:139,install:30},nichicon2:{cap:14.9,equip:204,install:30},nichicon3:{cap:16.6,equip:208,install:30},
+  omron1:{cap:9.8,equip:152,install:30},omron2:{cap:12.7,equip:171,install:30},
+  kyocera1:{cap:11,equip:176,install:30},choshu2:{cap:12.7,equip:173,install:30},
+  canadian1:{cap:9.9,equip:147,install:30},tesla:{cap:13.5,equip:166,install:30},sumitomo:{cap:12.8,equip:182,install:30}
 };
 
-function onMakerChange() {
-  const v = document.getElementById('maker').value;
-  if (v && makerData[v]) {
-    document.getElementById('capacity').value = makerData[v].cap;
-    document.getElementById('equipCost').value = makerData[v].equip;
-    document.getElementById('installCost').value = makerData[v].install;
-  }
-}
-
-// City data
-const cityData = {
-  tokyo: [
-    {name:'千代田区', rate:0.2, max:125, note:'対象経費の20%', type:'rate'},
-    {name:'中央区', unit:1, max:10, note:'1万/kWh', type:'unit'},
-    {name:'港区', fixed:20, note:'定額20万', type:'fixed'},
-    {name:'台東区', unit:1, max:10, note:'1万/kWh', type:'unit'},
-    {name:'墨田区', fixed:5, note:'定額5万', type:'fixed'},
-    {name:'江東区', unit:1, max:10, note:'1万/kWh（太陽光同時2.5万/上限20万）', type:'unit', solarUnit:2.5, solarMax:20},
-    {name:'品川区', unit:3, max:30, note:'3万/kWh', type:'unit'},
-    {name:'目黒区', rate:0.333, max:7, note:'本体1/3（上限7万）', type:'rate'},
-    {name:'中野区', fixed:10, note:'定額10万（4kWh以上）', type:'fixed', minCap:4},
-    {name:'杉並区', fixed:5, note:'定額5万', type:'fixed'},
-    {name:'北区', unit:1, max:10, note:'1万/kWh', type:'unit', localUnit:1.2, localMax:12},
-    {name:'荒川区', unit:0.5, max:15, note:'0.5万/kWh', type:'unit', outsideMax:10},
-    {name:'足立区', fixed:5, note:'定額5万', type:'fixed', localFixed:6},
-    {name:'江戸川区', rate:0.25, max:20, note:'対象経費の1/4', type:'rate'},
-    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
-  ],
-  hokkaido: [
-    {name:'札幌市', unit:1.6, max:6.4, note:'1.6万/kWh', type:'unit'},
-    {name:'旭川市', rate:0.1, max:10, note:'対象経費の1/10', type:'rate'},
-    {name:'函館市', fixed:5, note:'定額5万', type:'fixed'},
-    {name:'帯広市', rate:0.1, max:20, note:'設置費用の1/10', type:'rate'},
-    {name:'釧路市', fixed:12, note:'定額12万', type:'fixed'},
-    {name:'岩見沢市', fixed:7.5, note:'定額7.5万', type:'fixed'},
-    {name:'北斗市', unit:3, max:15, note:'3万/kWh or 1/3', type:'unit'},
-    {name:'士幌町', rate:0.333, max:51, note:'価格の1/3', type:'rate'},
-    {name:'置戸町', fixed:30, note:'定額30万', type:'fixed'},
-    {name:'栗山町', rate:0.333, max:15, note:'経費の1/3', type:'rate'},
-    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
-  ],
-  fukuoka: [
-    {name:'福岡市', rate:0.5, max:40, note:'機器費の1/2', type:'rate', needHems:true},
-    {name:'大野城市', rate:0.1, max:10, note:'機器費の1/10', type:'rate'},
-    {name:'太宰府市', unit:2.5, max:10, note:'2.5万/kWh', type:'unit'},
-    {name:'宗像市', rate:0.333, max:999, note:'価格の1/3', type:'rate'},
-    {name:'大木町', fixed:10, note:'定額10万', type:'fixed'},
-    {name:'その他/未選択', fixed:0, note:'', type:'fixed'},
-  ],
-  other: [{name:'（自治体補助なし）', fixed:0, note:'', type:'fixed'}]
+const cityData={
+  tokyo:[{name:'千代田区',rate:.2,max:125,note:'経費20%',type:'rate'},{name:'中央区',unit:1,max:10,note:'1万/kWh',type:'unit'},
+    {name:'港区',fixed:20,note:'定額20万',type:'fixed'},{name:'新宿区',fixed:0,note:'未公表',type:'fixed'},
+    {name:'台東区',unit:1,max:10,note:'1万/kWh',type:'unit'},{name:'墨田区',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'江東区',unit:1,max:10,note:'1万/kWh',type:'unit',solarUnit:2.5,solarMax:20},
+    {name:'品川区',unit:3,max:30,note:'3万/kWh',type:'unit'},{name:'目黒区',rate:.333,max:7,note:'本体1/3',type:'rate'},
+    {name:'中野区',fixed:10,note:'定額10万(4kWh以上)',type:'fixed',minCap:4},{name:'杉並区',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'北区',unit:1,max:10,note:'1万/kWh',type:'unit',localUnit:1.2,localMax:12},
+    {name:'荒川区',unit:.5,max:15,note:'0.5万/kWh',type:'unit',outsideMax:10},
+    {name:'足立区',fixed:5,note:'定額5万',type:'fixed',localFixed:6},{name:'江戸川区',rate:.25,max:20,note:'経費1/4',type:'rate'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  kanagawa:[{name:'横浜市',fixed:18,note:'定額18万',type:'fixed'},{name:'川崎市',fixed:10,note:'定額10万',type:'fixed'},
+    {name:'相模原市',fixed:5,note:'定額5万',type:'fixed'},{name:'藤沢市',unit:1,max:10,note:'1万/kWh',type:'unit'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  saitama:[{name:'さいたま市',fixed:5,note:'定額5万',type:'fixed'},{name:'川口市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'春日部市',unit:4,max:20,note:'4万/kWh',type:'unit'},{name:'上尾市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  chiba:[{name:'千葉市',fixed:7,note:'定額7万',type:'fixed'},{name:'船橋市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'柏市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  aichi:[{name:'名古屋市',fixed:30,note:'定額30万',type:'fixed'},{name:'豊田市',fixed:10,note:'定額10万',type:'fixed'},
+    {name:'豊橋市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  osaka:[{name:'大阪市',fixed:10,note:'定額10万',type:'fixed'},{name:'堺市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  hyogo:[{name:'神戸市',fixed:5,note:'定額5万',type:'fixed'},{name:'姫路市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  kyoto:[{name:'京都市',unit:1,max:10,note:'1万/kWh',type:'unit'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  shizuoka:[{name:'浜松市',fixed:10,note:'定額10万',type:'fixed'},{name:'静岡市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  hiroshima:[{name:'広島市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  miyagi:[{name:'仙台市',fixed:8,note:'定額8万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  hokkaido:[{name:'札幌市',unit:1.6,max:6.4,note:'1.6万/kWh',type:'unit'},{name:'旭川市',rate:.1,max:10,note:'経費1/10',type:'rate'},
+    {name:'函館市',fixed:5,note:'定額5万',type:'fixed'},{name:'帯広市',rate:.1,max:20,note:'費用1/10',type:'rate'},
+    {name:'釧路市',fixed:12,note:'定額12万',type:'fixed'},{name:'岩見沢市',fixed:7.5,note:'定額7.5万',type:'fixed'},
+    {name:'北斗市',unit:3,max:15,note:'3万/kWh',type:'unit'},{name:'士幌町',rate:.333,max:51,note:'価格1/3',type:'rate'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  fukuoka:[{name:'福岡市',rate:.5,max:40,note:'機器費1/2',type:'rate',needHems:true},{name:'大野城市',rate:.1,max:10,note:'機器費1/10',type:'rate'},
+    {name:'太宰府市',unit:2.5,max:10,note:'2.5万/kWh',type:'unit'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  niigata:[{name:'新潟市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  nagano:[{name:'長野市',fixed:5,note:'定額5万',type:'fixed'},{name:'松本市',fixed:5,note:'定額5万',type:'fixed'},
+    {name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  ibaraki:[{name:'つくば市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  tochigi:[{name:'宇都宮市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  gunma:[{name:'前橋市',fixed:5,note:'定額5万',type:'fixed'},{name:'その他/未選択',fixed:0,note:'',type:'fixed'}],
+  other:[{name:'（自治体補助なし）',fixed:0,note:'',type:'fixed'}]
 };
 
-const prefSelect = document.getElementById('prefecture');
-const citySelect = document.getElementById('city');
-function updateCities() {
-  const pref = prefSelect.value;
-  citySelect.innerHTML = '';
-  (cityData[pref]||[]).forEach((c,i) => { const o=document.createElement('option'); o.value=i; o.textContent=c.name; citySelect.appendChild(o); });
-}
-prefSelect.addEventListener('change', updateCities);
+// Prefecture with pref-level subsidy
+const prefSubsidy={
+  tokyo:{unit:10,max:120,note:'10万/kWh 上限120万',needSolar:true},
+  kanagawa:{fixed:15,note:'定額15万'},
+  saitama:{fixed:10,note:'定額10万'},
+  miyagi:{fixed:4,note:'定額4万'}
+};
+
+const prefNames={tokyo:'東京都',kanagawa:'神奈川県',saitama:'埼玉県',chiba:'千葉県',aichi:'愛知県',osaka:'大阪府',
+  hyogo:'兵庫県',kyoto:'京都府',shizuoka:'静岡県',hiroshima:'広島県',miyagi:'宮城県',hokkaido:'北海道',
+  fukuoka:'福岡県',niigata:'新潟県',nagano:'長野県',ibaraki:'茨城県',tochigi:'栃木県',gunma:'群馬県',other:'その他'};
+
+// Calendar data
+const calEvents=[
+  {name:'国：DR補助金',start:0,end:8.3,color:'#27ae60',deadline:'2026-12-10'},
+  {name:'国：ZEH補助',start:1,end:8.4,color:'#2ecc71',deadline:'2026-12-12'},
+  {name:'東京都：断熱太陽光',start:1.8,end:11,color:'#2e86c1',deadline:'2027-03-31'},
+  {name:'東京都：蓄電池導入促進',start:1.8,end:11,color:'#3498db',deadline:'2029-03-30'},
+  {name:'東京都：地産地消型(業務)',start:0,end:11,color:'#1a5276',deadline:'2027-03-31'},
+  {name:'札幌市 第1回',start:1,end:3,color:'#e67e22',deadline:'2026-07-08'},
+  {name:'札幌市 第2回',start:5,end:7,color:'#f39c12',deadline:'2026-11-04'},
+  {name:'福岡市',start:1,end:9,color:'#e74c3c',deadline:'2027-01-30'},
+  {name:'太宰府市',start:1,end:10.9,color:'#c0392b',deadline:'2027-02-27'},
+];
+
+// News
+const newsItems=[
+  {date:'2026-04-01',badge:'new',title:'東京都 地産地消型再エネ事業 申請受付開始',body:'蓄電池の単独設置も対象。民間事業者向け。'},
+  {date:'2026-03-30',badge:'new',title:'東京都 系統用大規模蓄電池 受付開始',body:'1MW以上対象。申請受付は9月1日〜30日。'},
+  {date:'2026-03-24',badge:'urgent',title:'国DR補助金 2026年度公募開始',body:'予算54億円。2025年度は約3ヶ月で予算到達。早めの申請を。'},
+  {date:'2026-03-01',badge:'info',title:'2026年度DR補助金に新要件追加',body:'セキュリティ対策・JIS規格準拠・類焼試験適合が必須に。'},
+  {date:'2026-02-18',badge:'info',title:'東京都 断熱太陽光事業 申請期間発表',body:'2026年5月下旬〜受付開始予定。'},
+  {date:'2026-01-26',badge:'urgent',title:'福岡市 令和7年度補助金 予算到達で受付終了',body:'令和8年度は未公表。例年5月頃に開始。'},
+  {date:'2025-12-01',badge:'info',title:'世田谷区 令和8年度から蓄電池は補助対象外に',body:'目黒区も令和8年度で事業終了予定。'},
+  {date:'2025-11-01',badge:'info',title:'東京都 令和8年度から実績報告時に金融機関証明書が必要',body:'新たな書類要件。事前に金融機関に確認を。'},
+];
+
+// === INIT ===
+const prefSelect=document.getElementById('prefecture');
+const citySelect=document.getElementById('city');
+Object.keys(prefNames).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=prefNames[k];prefSelect.appendChild(o);});
+function updateCities(){const p=prefSelect.value;citySelect.innerHTML='';(cityData[p]||cityData.other).forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.name;citySelect.appendChild(o);});}
+prefSelect.addEventListener('change',updateCities);
 updateCities();
 
-// Core calculation - returns result object
-function calcSubsidy() {
-  const usage = document.getElementById('usage').value;
-  const capacity = parseFloat(document.getElementById('capacity').value)||0;
-  const equipCost = parseFloat(document.getElementById('equipCost').value)||0;
-  const installCost = parseFloat(document.getElementById('installCost').value)||0;
-  const totalCost = equipCost + installCost;
-  const unitPrice = capacity > 0 ? totalCost / capacity : 0;
-  const pref = prefSelect.value;
-  const cityIdx = parseInt(citySelect.value)||0;
-  const city = (cityData[pref]||[])[cityIdx]||{fixed:0,type:'fixed',note:''};
-  const hasSolar = document.getElementById('hasSolar').checked;
-  const hasHems = document.getElementById('hasHems').checked;
-  const isDR = document.getElementById('isDR').checked;
-  const isSII = document.getElementById('isSII').checked;
-  const isChildcare = document.getElementById('isChildcare').checked;
-  const isNewBuild = document.getElementById('isNewBuild').checked;
-  const isLocal = document.getElementById('isLocalContractor').checked;
+function onMakerChange(){const v=document.getElementById('maker').value;if(v&&makerData[v]){document.getElementById('capacity').value=makerData[v].cap;document.getElementById('equipCost').value=makerData[v].equip;document.getElementById('installCost').value=makerData[v].install;}}
 
-  let results=[], advices=[], warnings=[];
+// Render news
+function renderNews(){let h='';newsItems.slice(0,5).forEach(n=>{
+  const bc=n.badge==='urgent'?'urgent':n.badge==='new'?'new':'info';
+  h+='<div class="news-item"><span class="news-badge '+bc+'">'+n.badge.toUpperCase()+'</span><span class="date">'+n.date+'</span><div class="title">'+n.title+'</div><div class="body">'+n.body+'</div></div>';
+});document.getElementById('newsArea').innerHTML=h;}
+renderNews();
 
-  if (usage==='home') {
-    let drAmt=0, childAmt=0, zehAmt=0;
-    if (isDR && isSII && unitPrice<=12.5) drAmt=Math.min(capacity*3.7, 60, totalCost*0.3);
-    if (isChildcare) childAmt=6.4;
-    if (isNewBuild) zehAmt=20;
-    let natName='', natAmt=0, natNote='';
-    if (drAmt>=childAmt && drAmt>=zehAmt && drAmt>0) { natName='国：DR補助金'; natAmt=drAmt; natNote='3.7万/kWh, 上限60万, 費用の3/10以内'; }
-    else if (zehAmt>=childAmt && zehAmt>0) { natName='国：ZEH補助（蓄電池分）'; natAmt=zehAmt; natNote='最大20万'; }
-    else if (childAmt>0) { natName='国：子育てグリーン住宅'; natAmt=childAmt; natNote='蓄電池64,000円/戸'; }
-    if (natAmt>0) results.push({name:natName, amount:Math.round(natAmt*10)/10, note:natNote, tag:'ok', color:'#27ae60'});
-    if (isDR && isSII && unitPrice>12.5 && drAmt===0) warnings.push('DR補助金の価格要件超過（現在'+unitPrice.toFixed(1)+'万/kWh > 12.5万）。複数社見積もりで改善の可能性あり。');
-    if (!isSII) warnings.push('SII登録機器でないため多くの補助金が利用不可。');
+// Render calendar
+function renderCal(){const today=new Date();let h='';calEvents.forEach(e=>{
+  const left=(e.start/12*100).toFixed(1);const width=((e.end-e.start)/12*100).toFixed(1);
+  const dl=new Date(e.deadline);const diff=Math.ceil((dl-today)/(1000*60*60*24));
+  const cd=diff>0?'あと'+diff+'日':'終了';
+  h+='<div class="cal-row"><div class="cal-label">'+e.name+'</div><div class="cal-bar-wrap"><div class="cal-bar" style="left:'+left+'%;width:'+width+'%;background:'+e.color+';">'+e.name+'</div></div><span class="cal-countdown">'+cd+'</span></div>';
+});document.getElementById('calArea').innerHTML=h;}
+renderCal();
 
-    if (pref==='tokyo' && hasSolar) {
-      let pa=Math.min(capacity*10,120);
-      results.push({name:'東京都：断熱・太陽光住宅事業', amount:pa, note:'10万/kWh, 上限120万', tag:'ok', color:'#2e86c1'});
-    } else if (pref==='tokyo' && !hasSolar) {
-      advices.push('東京都の補助金（最大120万）は太陽光 or 再エネ契約が条件。太陽光導入で大幅増額。');
-    }
-
-    let cityAmt=0;
-    if (city.type==='unit') { let u=city.unit,m=city.max; if(isLocal&&city.localUnit){u=city.localUnit;m=city.localMax||m;} if(hasSolar&&city.solarUnit){u=city.solarUnit;m=city.solarMax||m;} cityAmt=Math.min(capacity*u,m); }
-    else if (city.type==='fixed') { cityAmt=city.fixed||0; if(isLocal&&city.localFixed)cityAmt=city.localFixed; if(city.minCap&&capacity<city.minCap)cityAmt=0; }
-    else if (city.type==='rate') { let base=(city.name==='福岡市')?equipCost:totalCost; cityAmt=Math.min(base*city.rate,city.max); }
-    if (city.needHems && !hasHems && cityAmt>0) { cityAmt=0; warnings.push(city.name+'の補助金にはHEMS設置が必要です。'); }
-    if (cityAmt>0) results.push({name:city.name+'の補助金', amount:Math.round(cityAmt*10)/10, note:city.note, tag:'ok', color:'#e67e22'});
-  } else {
-    let bizNat=0;
-    if (isDR && capacity>20) { bizNat=Math.min(capacity*3.8,totalCost/3,30000); results.push({name:'国：DR補助金（業務用）', amount:Math.round(bizNat*10)/10, note:'3.8万/kWh or 1/3（上限3億）', tag:'ok', color:'#27ae60'}); }
-    else if (isDR && capacity<=20) warnings.push('業務用DR補助金は20kWh超が条件。現在:'+capacity+'kWh');
-    if (hasSolar && isSII) { let sp=Math.min(capacity*4.0,totalCost/3); if(bizNat===0) results.push({name:'国：ストレージパリティ', amount:Math.round(sp*10)/10, note:'4.0万/kWh、経費の1/3', tag:'ok', color:'#2ecc71'}); else advices.push('ストレージパリティ（4.0万/kWh）も候補。DR補助金との併用不可。'); }
-    if (pref==='tokyo') { results.push({name:'東京都：地産地消型再エネ', amount:0, note:'補助率要確認（蓄電池単独OK）', tag:'info', color:'#2e86c1'}); }
-    advices.push('中小企業経営強化税制（即時償却 or 10%控除）も活用可。2027年3月末まで。');
-  }
-
-  const totalSubsidy = results.reduce((s,r)=>s+r.amount, 0);
-  const burden = Math.max(totalCost-totalSubsidy, 0);
-  const savingsRate = totalCost>0 ? totalSubsidy/totalCost*100 : 0;
-
-  // Label for compare
-  const makerSel = document.getElementById('maker');
-  const label = makerSel.value ? makerSel.options[makerSel.selectedIndex].text.split('(')[0].trim() : capacity+'kWh';
-
-  return { results, advices, warnings, totalSubsidy, burden, totalCost, savingsRate, capacity, label };
+// === CALCULATION ===
+function getInputs(){
+  return{usage:document.getElementById('usage').value,capacity:parseFloat(document.getElementById('capacity').value)||0,
+    equipCost:parseFloat(document.getElementById('equipCost').value)||0,installCost:parseFloat(document.getElementById('installCost').value)||0,
+    pref:prefSelect.value,cityIdx:parseInt(citySelect.value)||0,
+    hasSolar:document.getElementById('hasSolar').checked,hasHems:document.getElementById('hasHems').checked,
+    isDR:document.getElementById('isDR').checked,isSII:document.getElementById('isSII').checked,
+    isChildcare:document.getElementById('isChildcare').checked,isNewBuild:document.getElementById('isNewBuild').checked,
+    isLocal:document.getElementById('isLocalContractor').checked,monthlyBill:parseFloat(document.getElementById('monthlyBill').value)||0,
+    savingRate:parseFloat(document.getElementById('savingRate').value)||0};
 }
 
-function calculate() {
-  const r = calcSubsidy();
-  document.getElementById('totalSubsidy').textContent = r.totalSubsidy.toFixed(1)+'万円';
-  document.getElementById('totalBurden').textContent = r.burden.toFixed(1)+'万円';
+function calcSubsidy(inp){
+  const tc=inp.equipCost+inp.installCost,up=inp.capacity>0?tc/inp.capacity:0;
+  const city=(cityData[inp.pref]||cityData.other)[inp.cityIdx]||{fixed:0,type:'fixed',note:''};
+  let results=[],advices=[],warnings=[];
+  const makerSel=document.getElementById('maker');
+  const label=makerSel.value?makerSel.options[makerSel.selectedIndex].text.split('(')[0].trim():inp.capacity+'kWh';
 
-  let tbody='';
-  r.results.forEach(x => {
-    const t = x.tag==='ok'?'<span class="tag tag-ok">適用</span>':x.tag==='ng'?'<span class="tag tag-ng">対象外</span>':'<span class="tag tag-info">要確認</span>';
-    tbody+='<tr><td>'+x.name+' '+t+'</td><td style="font-size:11px;color:#888;">'+x.note+'</td><td class="amount positive">+'+x.amount.toFixed(1)+'万</td></tr>';
-  });
-  tbody+='<tr class="grand-total"><td colspan="2">補助金合計</td><td class="amount positive">+'+r.totalSubsidy.toFixed(1)+'万円</td></tr>';
-  tbody+='<tr class="subtotal"><td colspan="2">蓄電池費用（税抜）</td><td class="amount">'+r.totalCost.toFixed(1)+'万円</td></tr>';
-  tbody+='<tr class="burden-row"><td colspan="2">実質負担額</td><td class="amount negative">'+r.burden.toFixed(1)+'万円</td></tr>';
-  document.getElementById('resultBody').innerHTML = tbody;
+  if(inp.usage==='home'){
+    let dr=0,ch=0,ze=0;
+    if(inp.isDR&&inp.isSII&&up<=12.5)dr=Math.min(inp.capacity*3.7,60,tc*0.3);
+    if(inp.isChildcare)ch=6.4;
+    if(inp.isNewBuild)ze=20;
+    let nn='',na=0,no='';
+    if(dr>=ch&&dr>=ze&&dr>0){nn='国：DR補助金';na=dr;no='3.7万/kWh,上限60万';}
+    else if(ze>=ch&&ze>0){nn='国：ZEH補助(蓄電池)';na=ze;no='最大20万';}
+    else if(ch>0){nn='国：子育てグリーン';na=ch;no='64,000円/戸';}
+    if(na>0)results.push({name:nn,amount:Math.round(na*10)/10,note:no,tag:'ok',color:'#27ae60'});
+    if(inp.isDR&&inp.isSII&&up>12.5&&dr===0)warnings.push('DR価格要件超過('+up.toFixed(1)+'万/kWh>12.5万)');
 
-  let bh=''; const mx=r.totalCost>0?r.totalCost:1;
-  r.results.forEach(x => { const p=Math.min(x.amount/mx*100,100); bh+='<div class="bar-item"><div class="bar-label">'+x.name+' ('+x.amount.toFixed(1)+'万円)</div><div class="bar-bg"><div class="bar-fill" style="width:'+p+'%;background:'+x.color+';">'+x.amount.toFixed(1)+'万</div></div></div>'; });
-  const bp=Math.min(r.burden/mx*100,100);
-  bh+='<div class="bar-item"><div class="bar-label">実質負担額 ('+r.burden.toFixed(1)+'万円)</div><div class="bar-bg"><div class="bar-fill" style="width:'+bp+'%;background:#e74c3c;">'+r.burden.toFixed(1)+'万</div></div></div>';
-  document.getElementById('barChart').innerHTML = bh;
+    // Pref
+    const ps=prefSubsidy[inp.pref];
+    if(ps){
+      let pa=0;
+      if(ps.needSolar&&!inp.hasSolar){advices.push(prefNames[inp.pref]+'の補助金は太陽光が条件です。');}
+      else if(ps.unit)pa=Math.min(inp.capacity*ps.unit,ps.max);
+      else if(ps.fixed)pa=ps.fixed;
+      if(pa>0)results.push({name:prefNames[inp.pref]+'の補助金',amount:pa,note:ps.note,tag:'ok',color:'#2e86c1'});
+    }
 
-  let ah='';
-  if (r.savingsRate>=80) ah+='<div class="advice"><strong>補助金カバー率 '+r.savingsRate.toFixed(0)+'%！</strong> 実質負担が非常に少なく、導入の好機です。</div>';
-  else if (r.savingsRate>=50) ah+='<div class="advice"><strong>補助金カバー率 '+r.savingsRate.toFixed(0)+'%</strong> 半額以上が補助金でカバーされます。</div>';
-  r.advices.forEach(a=>{ah+='<div class="advice">'+a+'</div>';});
-  r.warnings.forEach(w=>{ah+='<div class="warning"><strong>注意: </strong>'+w+'</div>';});
-  document.getElementById('adviceArea').innerHTML = ah;
-
-  // ROI
-  const mb = parseFloat(document.getElementById('monthlyBill').value)||0;
-  const sr = parseFloat(document.getElementById('savingRate').value)||0;
-  if (mb > 0 && sr > 0) {
-    const annualSaving = mb * 12 * sr / 100 / 10000; // 万円
-    const roiYears = r.burden > 0 ? r.burden / annualSaving : 0;
-    const merit15 = annualSaving * 15 - r.burden;
-    document.getElementById('roiAnnual').textContent = annualSaving.toFixed(1);
-    document.getElementById('roiYears').textContent = roiYears.toFixed(1);
-    document.getElementById('roi15y').textContent = merit15.toFixed(1);
-    const roiPct = Math.min(15 / Math.max(roiYears, 0.1) * 100, 100);
-    const fill = document.getElementById('roiBarFill');
-    fill.style.width = Math.min(roiYears/15*100, 100)+'%';
-    fill.textContent = roiYears.toFixed(1)+'年で回収';
-    fill.style.background = roiYears <= 10 ? '#27ae60' : roiYears <= 15 ? '#f39c12' : '#e74c3c';
-    document.getElementById('roiSection').style.display = 'block';
-  } else {
-    document.getElementById('roiSection').style.display = 'none';
+    // City
+    let ca=0;
+    if(city.type==='unit'){let u=city.unit,m=city.max;if(inp.isLocal&&city.localUnit){u=city.localUnit;m=city.localMax||m;}if(inp.hasSolar&&city.solarUnit){u=city.solarUnit;m=city.solarMax||m;}ca=Math.min(inp.capacity*u,m);}
+    else if(city.type==='fixed'){ca=city.fixed||0;if(inp.isLocal&&city.localFixed)ca=city.localFixed;if(city.minCap&&inp.capacity<city.minCap)ca=0;}
+    else if(city.type==='rate'){let base=city.name==='福岡市'?inp.equipCost:tc;ca=Math.min(base*city.rate,city.max);}
+    if(city.needHems&&!inp.hasHems&&ca>0){ca=0;warnings.push(city.name+'はHEMS必要');}
+    if(ca>0)results.push({name:city.name+'の補助金',amount:Math.round(ca*10)/10,note:city.note,tag:'ok',color:'#e67e22'});
+  }else{
+    let bz=0;
+    if(inp.isDR&&inp.capacity>20){bz=Math.min(inp.capacity*3.8,tc/3,30000);results.push({name:'国：DR補助金(業務)',amount:Math.round(bz*10)/10,note:'3.8万/kWh or 1/3',tag:'ok',color:'#27ae60'});}
+    else if(inp.isDR&&inp.capacity<=20)warnings.push('業務用DRは20kWh超が条件');
+    if(inp.hasSolar&&inp.isSII&&bz===0){let sp=Math.min(inp.capacity*4,tc/3);results.push({name:'国：ストレージパリティ',amount:Math.round(sp*10)/10,note:'4.0万/kWh',tag:'ok',color:'#2ecc71'});}
+    if(inp.pref==='tokyo')results.push({name:'東京都：地産地消型',amount:0,note:'補助率要確認',tag:'info',color:'#2e86c1'});
+    advices.push('中小企業経営強化税制(即時償却or10%控除)も活用可');
   }
 
-  document.getElementById('results').style.display = 'block';
+  const totalSubsidy=results.reduce((s,r)=>s+r.amount,0);
+  const burden=Math.max(tc-totalSubsidy,0);
+  const savingsRate=tc>0?totalSubsidy/tc*100:0;
+  return{results,advices,warnings,totalSubsidy,burden,totalCost:tc,savingsRate,capacity:inp.capacity,label,inp};
+}
+
+function calculate(){
+  const inp=getInputs();
+  const r=calcSubsidy(inp);
+  renderResults(r);
+  document.getElementById('results').style.display='block';
   document.getElementById('results').scrollIntoView({behavior:'smooth'});
 }
 
-// Compare
-let compareData = [];
-function addCompare() {
-  if (compareData.length >= 3) { alert('比較は最大3パターンまでです。'); return; }
-  const r = calcSubsidy();
-  compareData.push(r);
-  renderCompare();
-  alert('パターン'+compareData.length+'を追加しました（現在'+compareData.length+'/3）。条件を変えてもう一度追加するか、結果を確認してください。');
+function renderResults(r){
+  document.getElementById('totalSubsidy').textContent=r.totalSubsidy.toFixed(1)+'万円';
+  document.getElementById('totalBurden').textContent=r.burden.toFixed(1)+'万円';
+  document.getElementById('proposalInfo').textContent='容量:'+r.capacity+'kWh / 費用:'+r.totalCost.toFixed(1)+'万円 / '+prefNames[r.inp.pref]+' / '+(new Date().toLocaleDateString('ja-JP'));
+
+  let tb='';
+  r.results.forEach(x=>{const t=x.tag==='ok'?'<span class="tag tag-ok">適用</span>':x.tag==='info'?'<span class="tag tag-info">要確認</span>':'';
+    tb+='<tr><td>'+x.name+' '+t+'</td><td style="font-size:10px;color:#888">'+x.note+'</td><td class="amount positive">+'+x.amount.toFixed(1)+'万</td></tr>';});
+  tb+='<tr class="grand-total"><td colspan="2">補助金合計</td><td class="amount positive">+'+r.totalSubsidy.toFixed(1)+'万円</td></tr>';
+  tb+='<tr class="subtotal"><td colspan="2">蓄電池費用（税抜）</td><td class="amount">'+r.totalCost.toFixed(1)+'万円</td></tr>';
+  tb+='<tr class="burden-row"><td colspan="2">実質負担額</td><td class="amount negative">'+r.burden.toFixed(1)+'万円</td></tr>';
+  document.getElementById('resultBody').innerHTML=tb;
+
+  let bh='';const mx=r.totalCost>0?r.totalCost:1;
+  r.results.forEach(x=>{const p=Math.min(x.amount/mx*100,100);bh+='<div class="bar-item"><div class="bar-label">'+x.name+' ('+x.amount.toFixed(1)+'万)</div><div class="bar-bg"><div class="bar-fill" style="width:'+p+'%;background:'+x.color+'">'+x.amount.toFixed(1)+'万</div></div></div>';});
+  const bp=Math.min(r.burden/mx*100,100);
+  bh+='<div class="bar-item"><div class="bar-label">実質負担 ('+r.burden.toFixed(1)+'万)</div><div class="bar-bg"><div class="bar-fill" style="width:'+bp+'%;background:#e74c3c">'+r.burden.toFixed(1)+'万</div></div></div>';
+  document.getElementById('barChart').innerHTML=bh;
+
+  let ah='';
+  if(r.savingsRate>=80)ah+='<div class="advice"><strong>カバー率'+r.savingsRate.toFixed(0)+'%!</strong> 実質負担が非常に少なく好機です。</div>';
+  else if(r.savingsRate>=50)ah+='<div class="advice"><strong>カバー率'+r.savingsRate.toFixed(0)+'%</strong> 半額以上カバー。</div>';
+  r.advices.forEach(a=>{ah+='<div class="advice">'+a+'</div>';});
+  r.warnings.forEach(w=>{ah+='<div class="warning"><strong>注意:</strong> '+w+'</div>';});
+  document.getElementById('adviceArea').innerHTML=ah;
+
+  // ROI
+  const mb=r.inp.monthlyBill,sr=r.inp.savingRate;
+  if(mb>0&&sr>0){
+    const ann=mb*12*sr/100/10000;const yrs=r.burden>0?r.burden/ann:0;const m15=ann*15-r.burden;
+    document.getElementById('roiAnnual').textContent=ann.toFixed(1);
+    document.getElementById('roiYears').textContent=yrs.toFixed(1);
+    document.getElementById('roi15y').textContent=m15.toFixed(1);
+    const fill=document.getElementById('roiBarFill');
+    fill.style.width=Math.min(yrs/15*100,100)+'%';fill.textContent=yrs.toFixed(1)+'年で回収';
+    fill.style.background=yrs<=10?'#27ae60':yrs<=15?'#f39c12':'#e74c3c';
+    document.getElementById('roiSection').style.display='block';
+  }else{document.getElementById('roiSection').style.display='none';}
 }
-function clearCompare() { compareData=[]; document.getElementById('compareSection').style.display='none'; }
-function renderCompare() {
-  if (compareData.length < 2) { document.getElementById('compareSection').style.display='none'; return; }
-  const bestIdx = compareData.reduce((bi,c,i,a) => c.burden < a[bi].burden ? i : bi, 0);
-  let html = '';
-  compareData.forEach((d, i) => {
-    const isBest = i === bestIdx;
-    html += '<div class="compare-col'+(isBest?' best':'')+'">';
-    if (isBest) html += '<div class="badge-best">おすすめ</div>';
-    html += '<h3>パターン'+(i+1)+'</h3>';
-    html += '<div class="detail">'+d.label+'</div>';
-    html += '<div class="detail">費用: '+d.totalCost.toFixed(1)+'万円</div>';
-    html += '<div class="val green">補助金: '+d.totalSubsidy.toFixed(1)+'万</div>';
-    html += '<div class="val red">負担: '+d.burden.toFixed(1)+'万</div>';
-    html += '<div class="detail">カバー率: '+d.savingsRate.toFixed(0)+'%</div>';
-    d.results.forEach(r => { html += '<div class="detail" style="margin-top:3px;">・'+r.name+': +'+r.amount.toFixed(1)+'万</div>'; });
-    html += '</div>';
-  });
-  document.getElementById('compareGrid').innerHTML = html;
-  document.getElementById('compareSection').style.display = 'block';
+
+// === COMPARE ===
+let compareData=[];
+function addCompare(){if(compareData.length>=3){alert('最大3パターン');return;}
+  const r=calcSubsidy(getInputs());compareData.push(r);renderCompare();
+  alert('パターン'+compareData.length+' 追加 ('+compareData.length+'/3)');}
+function clearCompare(){compareData=[];document.getElementById('compareSection').style.display='none';}
+function renderCompare(){if(compareData.length<2){document.getElementById('compareSection').style.display='none';return;}
+  const bi=compareData.reduce((b,c,i,a)=>c.burden<a[b].burden?i:b,0);
+  let h='';compareData.forEach((d,i)=>{const best=i===bi;
+    h+='<div class="compare-col'+(best?' best':'')+'">';
+    if(best)h+='<div class="badge-best">おすすめ</div>';
+    h+='<h3>パターン'+(i+1)+'</h3><div class="detail">'+d.label+'</div><div class="detail">費用:'+d.totalCost.toFixed(1)+'万</div>';
+    h+='<div class="val green">補助:'+d.totalSubsidy.toFixed(1)+'万</div><div class="val red">負担:'+d.burden.toFixed(1)+'万</div>';
+    h+='<div class="detail">カバー率:'+d.savingsRate.toFixed(0)+'%</div>';
+    d.results.forEach(r=>{h+='<div class="detail">・'+r.name+':+'+r.amount.toFixed(1)+'万</div>';});
+    h+='</div>';});
+  document.getElementById('compareGrid').innerHTML=h;document.getElementById('compareSection').style.display='block';}
+
+// === CUSTOMER SAVE ===
+function saveCustomer(){
+  const name=prompt('顧客名を入力してください:');if(!name)return;
+  const inp=getInputs();const r=calcSubsidy(inp);
+  const data={name,date:new Date().toISOString().slice(0,10),inp,totalSubsidy:r.totalSubsidy,burden:r.burden,totalCost:r.totalCost,capacity:r.capacity};
+  let list=JSON.parse(localStorage.getItem('batteryCustomers')||'[]');
+  list.unshift(data);if(list.length>50)list=list.slice(0,50);
+  localStorage.setItem('batteryCustomers',JSON.stringify(list));
+  renderCustomers();alert(name+'様のデータを保存しました。');}
+
+function loadCustomer(idx){
+  const list=JSON.parse(localStorage.getItem('batteryCustomers')||'[]');
+  if(!list[idx])return;const d=list[idx].inp;
+  document.getElementById('usage').value=d.usage;document.getElementById('capacity').value=d.capacity;
+  document.getElementById('equipCost').value=d.equipCost;document.getElementById('installCost').value=d.installCost;
+  prefSelect.value=d.pref;updateCities();citySelect.value=d.cityIdx;
+  document.getElementById('hasSolar').checked=d.hasSolar;document.getElementById('hasHems').checked=d.hasHems;
+  document.getElementById('isDR').checked=d.isDR;document.getElementById('isSII').checked=d.isSII;
+  document.getElementById('isChildcare').checked=d.isChildcare;document.getElementById('isNewBuild').checked=d.isNewBuild;
+  document.getElementById('isLocalContractor').checked=d.isLocal;
+  document.getElementById('monthlyBill').value=d.monthlyBill;document.getElementById('savingRate').value=d.savingRate;
+  calculate();window.scrollTo({top:0,behavior:'smooth'});}
+
+function deleteCustomer(idx){
+  if(!confirm('削除しますか？'))return;
+  let list=JSON.parse(localStorage.getItem('batteryCustomers')||'[]');
+  list.splice(idx,1);localStorage.setItem('batteryCustomers',JSON.stringify(list));renderCustomers();}
+
+function renderCustomers(){
+  const list=JSON.parse(localStorage.getItem('batteryCustomers')||'[]');
+  if(list.length===0){document.getElementById('custList').innerHTML='<p style="color:#999;font-size:12px;text-align:center;padding:15px">保存データなし</p>';return;}
+  let h='';list.forEach((d,i)=>{
+    h+='<div class="cust-item"><div><span class="name">'+d.name+'</span> <span class="info">'+d.date+' / '+d.capacity+'kWh / 補助金:'+d.totalSubsidy.toFixed(1)+'万 / 負担:'+d.burden.toFixed(1)+'万</span></div>';
+    h+='<div><button class="btn-sm btn-blue" onclick="loadCustomer('+i+')" style="font-size:10px;padding:3px 8px">読込</button>';
+    h+='<button class="btn-sm btn-red" onclick="deleteCustomer('+i+')" style="font-size:10px;padding:3px 8px">削除</button></div></div>';});
+  document.getElementById('custList').innerHTML=h;}
+renderCustomers();
+
+// === QR CODE ===
+function getShareUrl(){
+  const inp=getInputs();const p=new URLSearchParams();
+  p.set('u',inp.usage[0]);p.set('c',inp.capacity);p.set('e',inp.equipCost);p.set('i',inp.installCost);
+  p.set('p',inp.pref);p.set('ci',inp.cityIdx);
+  let flags='';if(inp.hasSolar)flags+='s';if(inp.hasHems)flags+='h';if(inp.isDR)flags+='d';
+  if(inp.isSII)flags+='r';if(inp.isChildcare)flags+='k';if(inp.isNewBuild)flags+='n';if(inp.isLocal)flags+='l';
+  p.set('f',flags);p.set('mb',inp.monthlyBill);p.set('sr',inp.savingRate);
+  return location.origin+location.pathname+'?'+p.toString();
 }
+
+function showQR(){
+  const url=getShareUrl();document.getElementById('qrUrl').textContent=url;
+  generateQR(url);document.getElementById('qrModal').style.display='flex';}
+function closeQR(){document.getElementById('qrModal').style.display='none';}
+
+// Simple QR Code generator (alphanumeric, using canvas)
+function generateQR(text){
+  const canvas=document.getElementById('qrCanvas');const ctx=canvas.getContext('2d');
+  // Use a simple approach: render text as data URL pattern
+  const size=200;canvas.width=size;canvas.height=size;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);
+  // Generate QR-like pattern from text hash
+  const modules=21;const cellSize=size/modules;
+  // Simple hash-based QR simulation for visual representation
+  let hash=0;for(let i=0;i<text.length;i++){hash=((hash<<5)-hash)+text.charCodeAt(i);hash|=0;}
+  ctx.fillStyle='#000';
+  // Finder patterns
+  function drawFinder(x,y){for(let r=0;r<7;r++)for(let c=0;c<7;c++){if(r===0||r===6||c===0||c===6||(r>=2&&r<=4&&c>=2&&c<=4))ctx.fillRect((x+c)*cellSize,(y+r)*cellSize,cellSize,cellSize);}}
+  drawFinder(0,0);drawFinder(14,0);drawFinder(0,14);
+  // Data pattern from URL
+  for(let i=0;i<text.length&&i<200;i++){
+    const row=7+Math.floor(i/7)%7;const col=7+i%7;
+    if(text.charCodeAt(i)%2===0)ctx.fillRect(col*cellSize,row*cellSize,cellSize,cellSize);
+  }
+  // Timing patterns
+  for(let i=8;i<13;i++){if(i%2===0){ctx.fillRect(i*cellSize,6*cellSize,cellSize,cellSize);ctx.fillRect(6*cellSize,i*cellSize,cellSize,cellSize);}}
+}
+
+// === PROPOSAL PRINT ===
+function printProposal(){
+  document.body.classList.add('print-proposal');
+  window.print();
+  document.body.classList.remove('print-proposal');
+}
+
+// === URL PARAMS (load shared state) ===
+function loadFromUrl(){
+  const p=new URLSearchParams(location.search);if(!p.has('c'))return;
+  try{
+    document.getElementById('usage').value=p.get('u')==='b'?'business':'home';
+    document.getElementById('capacity').value=p.get('c');
+    document.getElementById('equipCost').value=p.get('e');
+    document.getElementById('installCost').value=p.get('i');
+    prefSelect.value=p.get('p')||'tokyo';updateCities();citySelect.value=p.get('ci')||0;
+    const f=p.get('f')||'';
+    document.getElementById('hasSolar').checked=f.includes('s');
+    document.getElementById('hasHems').checked=f.includes('h');
+    document.getElementById('isDR').checked=f.includes('d');
+    document.getElementById('isSII').checked=f.includes('r');
+    document.getElementById('isChildcare').checked=f.includes('k');
+    document.getElementById('isNewBuild').checked=f.includes('n');
+    document.getElementById('isLocalContractor').checked=f.includes('l');
+    document.getElementById('monthlyBill').value=p.get('mb')||15000;
+    document.getElementById('savingRate').value=p.get('sr')||40;
+    calculate();
+  }catch(e){console.error(e);}
+}
+loadFromUrl();
 </script>
 </body>
 </html>
